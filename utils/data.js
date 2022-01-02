@@ -22,32 +22,32 @@ export const sliderItems = [
 export const categories = [
     {
         id: 1,
-        img: "",
         title: "Shirts",
+        subcategories: ["Graphic Tees", "Formal", "Casual", "Golf shirts"],
+        images: [],
     },
     {
         id: 2,
-        img: "",
         title: "Dresses",
+        subcategories: ["Floral", "Skirts", "Long", "Formal"],
+        images: [],
     },
     {
         id: 3,
-        img: "",
         title: "Jackets & Coats",
+        subcategories: ["Blazers", "Demin jackets", "Hoodie", "Windbreakers"],
+        images: [],
     },
     {
         id: 4,
-        img: "",
         title: "Bottoms",
+        subcategories: ["Jeans", "Shorts", "Cargo", "Track pants"],
+        images: [],
     },
     {
         id: 5,
-        img: "",
         title: "Shoes",
-    },
-    {
-        id: 6,
-        img: "",
-        title: "Sport",
+        subcategories: ["Heels", "Boots", "Running", "Sneakers"],
+        images: [],
     },
 ];
