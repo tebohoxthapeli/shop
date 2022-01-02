@@ -1,3 +1,7 @@
+:root {
+    --slider-height: 85vh;
+}
+
 html,
 body {
     padding: 0;

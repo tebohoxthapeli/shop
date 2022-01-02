@@ -1,0 +1,22 @@
+.slide {
+    height: inherit;
+    width: 100vw;
+    display: flex;
+    align-items: center;
+}
+
+.imgContainer {
+    flex: 6;
+    height: inherit;
+    display: flex;
+    align-items: center;
+}
+
+.infoContainer {
+    flex: 4;
+    padding: 0 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    z-index: 10;
+}
