@@ -68,7 +68,7 @@ export default function NavBar() {
         >
             <MenuItem>
                 <IconButton size="large" color="inherit">
-                    <Badge badgeContent={1} color="error">
+                    <Badge badgeContent={0} color="error" showZero>
                         <ShoppingBagIcon />
                     </Badge>
                 </IconButton>
@@ -111,7 +111,7 @@ export default function NavBar() {
                             mr: 4,
                         }}
                     >
-                        MY SHOP
+                        FaucetLeak
                     </Typography>
 
                     {/* search bar */}
@@ -131,7 +131,7 @@ export default function NavBar() {
                                 ml: 2,
                             }}
                         >
-                            <Badge badgeContent={1} color="error">
+                            <Badge badgeContent={0} color="secondary" showZero>
                                 <ShoppingBagIcon />
                             </Badge>
                         </IconButton>

@@ -1,36 +1,46 @@
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
+import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
+import Button from "@mui/material/Button";
 
 import Sidebar from "./Sidebar";
 import Product from "./Product";
+
 import { categories } from "../../utils/data";
 
 export default function Categories() {
     return (
-        <Grid sx={{ my: 1, px: 2 }} columnSpacing={5} container>
+        <Grid sx={{ my: 1, px: 2 }} columnSpacing={2} container>
             <Grid item xs={2}>
                 <Sidebar />
             </Grid>
+
             <Grid item xs={10}>
                 <Box>
                     <Typography variant="h3" gutterBottom>
                         Categories
                     </Typography>
 
-                    {categories.map(({ id, title }) => (
-                        <Box key={id} sx={{ border: 1 }}>
-                            <Typography variant="h6" gutterBottom>
-                                {title}
-                            </Typography>
+                    {categories.map(({ id, title, subcategories }) => (
+                        <Paper key={id} sx={{ my: 3, p: 2 }} elevation={5}>
+                            <Box sx={{ display: "flex", justifyContent: "space-between", pb: 2 }}>
+                                <Typography variant="h6">
+                                    {title}
+                                </Typography>
 
-                            <Stack direction="row" spacing={2}>
-                                <Product />
-                                <Product />
-                                <Product />
+                                <Button>Show All</Button>
+                            </Box>
+
+                            <Stack direction="row" spacing={4}>
+                                {subcategories.map(({ products }) => {
+                                    return products.map((item) => (
+                                        <Product {...item} key={item.id} />
+                                    ));
+                                })}
                             </Stack>
-                        </Box>
+                        </Paper>
                     ))}
                 </Box>
             </Grid>
