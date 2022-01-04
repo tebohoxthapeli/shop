@@ -1,21 +1,15 @@
-import NavBar from "../components/navbar/NavBar";
-import Announcement from "../components/Announcement";
+import Top from "../components/top/CombinedTop";
 import Slider from "../components/Slider";
 import Categories from "../components/categories/Categories";
-import Newsletter from "../components/Newsletter";
-import Prefooter from "../components/Prefooter";
-import Footer from "../components/Footer";
+import Bottom from "../components/bottom/CombinedBottom";
 
 export default function Home() {
     return (
         <div>
-            <Announcement />
-            <NavBar />
+            <Top />
             <Slider />
             <Categories />
-            <Newsletter />
-            <Prefooter />
-            <Footer />
+            <Bottom />
         </div>
     );
 }

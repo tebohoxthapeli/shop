@@ -10,7 +10,7 @@ import FacebookIcon from "@mui/icons-material/Facebook";
 import TwitterIcon from "@mui/icons-material/Twitter";
 import InstagramIcon from "@mui/icons-material/Instagram";
 
-import { listData } from "../utils/data";
+import { listData } from "../../utils/data";
 
 export default function Prefooter() {
     return (
