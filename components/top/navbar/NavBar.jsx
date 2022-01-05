@@ -1,6 +1,8 @@
 import { useState } from "react";
+import NextLink from "next/link";
 
 import AppBar from "@mui/material/AppBar";
+import Link from "@mui/material/Link";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
@@ -49,8 +51,21 @@ export default function NavBar() {
             onClose={handleAccountMenuClose}
             keepMounted
         >
-            <MenuItem onClick={handleAccountMenuClose}>Login</MenuItem>
-            <MenuItem onClick={handleAccountMenuClose}>Register</MenuItem>
+            <MenuItem onClick={handleAccountMenuClose}>
+                <NextLink href="/login" passHref>
+                    <Link color="inherit" underline="none">
+                        Login
+                    </Link>
+                </NextLink>
+            </MenuItem>
+
+            <MenuItem onClick={handleAccountMenuClose}>
+                <NextLink href="/register" passHref>
+                    <Link color="inherit" underline="none">
+                        Register
+                    </Link>
+                </NextLink>
+            </MenuItem>
         </Menu>
     );
 
@@ -112,7 +127,11 @@ export default function NavBar() {
                             mr: 4,
                         }}
                     >
-                        FaucetLeak
+                        <NextLink href="/" passHref>
+                            <Link color="inherit" underline="none">
+                                FaucetLeak
+                            </Link>
+                        </NextLink>
                     </Typography>
 
                     {/* search bar */}

@@ -1,13 +1,19 @@
-import Top from "../../components/top/CombinedTop";
-import Bottom from "../../components/bottom/CombinedBottom";
-import Main from "../../components/categoryPage/Main";
+import Box from "@mui/material/Box";
+import Stack from "@mui/material/Stack";
 
-export default function CategoryPage() {
+import BreadcrumbComponent from "../../components/BreadCrumbs";
+import SingleCategorySidebar from "../../components/categoryPage/SingleCategorySidebar";
+import AllProducts from "../../components/categoryPage/AllProducts";
+
+export default function Category() {
     return (
-        <div>
-            <Top />
-            <Main />
-            <Bottom />
-        </div>
+        <Box sx={{ px: 4 }}>
+            <BreadcrumbComponent />
+
+            <Stack direction="row" spacing={4} sx={{ my: 4 }}>
+                <SingleCategorySidebar />
+                <AllProducts />
+            </Stack>
+        </Box>
     );
 }

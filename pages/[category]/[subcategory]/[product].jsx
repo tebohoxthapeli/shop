@@ -10,8 +10,6 @@ import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import ShoppingBagIcon from "@mui/icons-material/ShoppingBag";
 
 import Breadcrumbs from "../../../components/BreadCrumbs";
-import Top from "../../../components/top/CombinedTop";
-import Bottom from "../../../components/bottom/CombinedBottom";
 import Color from "../../../components/productPage/Color";
 import Quantity from "../../../components/productPage/Quantity";
 
@@ -32,7 +30,6 @@ export default function Product() {
 
     return (
         <Box>
-            <Top />
             <Breadcrumbs />
 
             <Stack direction="row" spacing={2} sx={{ p: 4, justifyContent: "center" }}>
@@ -94,7 +91,11 @@ export default function Product() {
                         <Quantity />
                     </Box>
 
-                    <Button variant="contained" sx={{ mb: 10, mt: 2 }} startIcon={<ShoppingBagIcon />}>
+                    <Button
+                        variant="contained"
+                        sx={{ mb: 10, mt: 2 }}
+                        startIcon={<ShoppingBagIcon />}
+                    >
                         Add to shopping bag
                     </Button>
 
@@ -115,7 +116,6 @@ export default function Product() {
                     </Box>
                 </Box>
             </Stack>
-            <Bottom />
         </Box>
     );
 }
