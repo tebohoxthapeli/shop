@@ -6,7 +6,7 @@ import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
 
 import Sidebar from "./Sidebar";
-import Product from "./Product";
+import Product from "../Product";
 
 import { categories } from "../../utils/data";
 
@@ -25,13 +25,10 @@ export default function Categories() {
 
                     {categories.map(({ id, title, subcategories }) => (
                         <Paper key={id} sx={{ my: 3, p: 2 }} elevation={5}>
-                            <Box sx={{ display: "flex", justifyContent: "space-between", pb: 2 }}>
-                                <Typography variant="h6">
-                                    {title}
-                                </Typography>
-
+                            <Stack direction="row" sx={{ justifyContent: "space-between", pb: 1 }}>
+                                <Typography variant="h6">{title}</Typography>
                                 <Button>Show All</Button>
-                            </Box>
+                            </Stack>
 
                             <Stack direction="row" spacing={4}>
                                 {subcategories.map(({ products }) => {
@@ -47,5 +44,3 @@ export default function Categories() {
         </Grid>
     );
 }
-
-// main content will be, say 3 products from each category and a button that leads to ALL products of a specific cat

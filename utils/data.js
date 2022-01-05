@@ -19,6 +19,65 @@ export const sliderItems = [
     },
 ];
 
+export const jacketsAndCoats = [
+    {
+        id: 1,
+        name: "Trefoil area 33 coach jacket",
+        brand: "Adidas",
+        price: 1899,
+        img: "/images/jackets and coats/windbreaker.jpg",
+    },
+    {
+        id: 2,
+        name: "Bislave blazer",
+        brand: "Mango",
+        price: 1699,
+        img: "/images/jackets and coats/blazer.jpg",
+    },
+    {
+        id: 3,
+        name: "M boyce-r denim jacket",
+        brand: "Soviet",
+        price: 699,
+        img: "/images/jackets and coats/denim jacket.jpg",
+    },
+    {
+        id: 4,
+        name: "Rollin Skull hoodie",
+        brand: "Chrome Roses",
+        price: 999,
+        img: "/images/jackets and coats/hoodie.jpg",
+    },
+    {
+        id: 5,
+        name: "Tbar art t-shirt",
+        brand: "Cotton On",
+        price: 209,
+        img: "/images/shirts/graphic tee.jpg",
+    },
+    {
+        id: 6,
+        name: "Tech long sleeve shirt",
+        brand: "Hi-Tec",
+        price: 899,
+        img: "/images/shirts/formal shirt.jpg",
+    },
+    {
+        id: 7,
+        name: "Regular fit lightweight textured shirt",
+        brand: "Lark & Crosse",
+        price: 479,
+        img: "/images/shirts/casual shirt.jpg",
+    },
+    {
+        id: 8,
+        name: "Pique knit mandarin shirt",
+        brand: "Superbalist",
+        price: 399,
+        img: "/images/shirts/golf shirt.jpg",
+    },
+];
+
 export const categories = [
     {
         id: 1,
