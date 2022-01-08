@@ -2,16 +2,17 @@ import { model, models, Schema } from "mongoose";
 
 const userSchema = new Schema(
     {
-        name: String,
+        username: {
+            type: String
+        },
+        password: {
+            type: String
+        },
         email: {
             type: String,
             unique: true,
             lowercase: true,
             trim: true,
-        },
-        password: {
-            type: String,
-            select: false,
         },
         isAdmin: {
             type: Boolean,

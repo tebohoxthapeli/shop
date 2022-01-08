@@ -5,7 +5,7 @@ dotenv.config();
 
 let connectionReadyState = 0;
 
-async function dbConnect() {
+export async function dbConnect() {
     if (connectionReadyState !== 0) return;
 
     if (connections.length > 0) {
@@ -22,7 +22,7 @@ async function dbConnect() {
     }
 }
 
-async function dbDisconnect() {
+export async function dbDisconnect() {
     if (connectionReadyState !== 0) {
         if (process.env.NODE_ENV === "production") {
             await disconnect();
@@ -33,9 +33,11 @@ async function dbDisconnect() {
     }
 }
 
-function convertDocToObj(doc) {
+export function convertDocToObj(doc) {
     doc._id = doc._id.toString();
     return doc;
 }
 
-export { dbConnect, dbDisconnect, convertDocToObj };
+export function convertBsonToObject(doc) {
+    return JSON.parse(JSON.stringify(doc));
+}

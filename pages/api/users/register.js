@@ -1,25 +1,36 @@
-import bcrypt from "bcryptjs";
+import { hashSync } from "bcryptjs";
 
-import { dbConnect, dbDisconnect } from "../../../utils/database";
+import { dbConnect, dbDisconnect, convertBsonToObject } from "../../../utils/database";
 import User from "../../../models/User";
+import { signToken } from "../../../utils/auth";
 
 export default async function handler(req, res) {
     if (req.method === "POST") {
-        const { name, email, password } = req.body;
+        const { username, email, password } = req.body;
 
         try {
             await dbConnect();
+            const foundUser = await User.findOne({ email }).lean();
+
+            if (foundUser) {
+                res.status(401).json({ error: "Email has already been used." });
+            }
 
             const user = await User.create({
-                name,
+                username,
                 email,
-                password: bcrypt.hashSync(password),
+                password: hashSync(password),
             });
 
+            console.log(user);
+
             await dbDisconnect();
-            res.status(201).json(user);
+            const _user = convertBsonToObject(user);
+            delete _user.password;
+            console.log(_user);
+            res.status(201).json({ token: signToken(_user) });
         } catch (err) {
-            res.status(500).json(err);
+            res.status(500).json({ error: err.message });
         }
     } else {
         res.status(405).json({ error: "POST method expected" });

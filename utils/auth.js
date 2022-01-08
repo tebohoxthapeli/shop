@@ -1,21 +1,10 @@
 import { sign, verify } from "jsonwebtoken";
 
-function signToken({ _id, name, email, isAdmin }) {
-    return sign(
-        {
-            _id,
-            name,
-            email,
-            isAdmin,
-        },
-        process.env.JWT_SECRET,
-        {
-            expiresIn: "30d",
-        }
-    );
+export function signToken(user) {
+    return sign({ ...user }, process.env.JWT_SECRET, { expiresIn: "30d" });
 }
 
-async function isAuth(req, res, next) {
+export async function isAuth(req, res, next) {
     const { authorization } = req.headers;
 
     if (authorization) {
@@ -31,5 +20,13 @@ async function isAuth(req, res, next) {
         } else {
             res.status(401).json({ message: "Token not supplied" });
         }
+    }
+}
+
+export async function isAdmin(req, res, next) {
+    if (req.user.isAdmin) {
+        next();
+    } else {
+        res.status(401).json({ message: "Not admin" });
     }
 }
