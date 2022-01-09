@@ -4,29 +4,45 @@ export function signToken(user) {
     return sign({ ...user }, process.env.JWT_SECRET, { expiresIn: "30d" });
 }
 
-export async function isAuth(req, res, next) {
-    const { authorization } = req.headers;
+export function verifyToken(handler) {
+    return async (req, res) => {
+        const { authorization } = req.headers;
 
-    if (authorization) {
+        if (!authorization) {
+            return res.status(401).json({ error: "Not authenticated." });
+        }
+
         const token = authorization.split("Bearer ")[1];
 
-        if (token) {
-            try {
-                req.user = verify(token, process.env.JWT_SECRET);
-                next();
-            } catch (err) {
-                res.status(401).json({ message: "Token not valid" });
-            }
-        } else {
-            res.status(401).json({ message: "Token not supplied" });
+        if (!token) {
+            return res.status(401).json({ error: "Invalid token format." });
         }
-    }
+
+        try {
+            req.user = verify(token, process.env.JWT_SECRET);
+            return await handler(req, res);
+        } catch (err) {
+            return res.status(401).json({ error: "Token has expired or is invalid." });
+        }
+    };
 }
 
-export async function isAdmin(req, res, next) {
-    if (req.user.isAdmin) {
-        next();
-    } else {
-        res.status(401).json({ message: "Not admin" });
-    }
+export function verifyId(handler) {
+    return async (req, res) => {
+        if (req.query.id !== req.user._id) {
+            return res.status(403).json({ error: "This action is forbidden." });
+        }
+
+        return await handler(req, res);
+    };
+}
+
+export function verifyIsAdmin(handler) {
+    return async (req, res) => {
+        if (!req.user.isAdmin) {
+            return res.status(403).json({ message: "Must be admin" });
+        }
+
+        return await handler(req, res);
+    };
 }

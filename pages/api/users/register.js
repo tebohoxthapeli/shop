@@ -10,7 +10,7 @@ export default async function handler(req, res) {
 
         try {
             await dbConnect();
-            const foundUser = await User.findOne({ email }).lean();
+            const foundUser = await User.findOne({ email }).select("+password").lean();
 
             if (foundUser) {
                 res.status(401).json({ error: "Email has already been used." });
@@ -22,13 +22,10 @@ export default async function handler(req, res) {
                 password: hashSync(password),
             });
 
-            console.log(user);
-
             await dbDisconnect();
             const _user = convertBsonToObject(user);
             delete _user.password;
-            console.log(_user);
-            res.status(201).json({ token: signToken(_user) });
+            res.status(201).json({ token: signToken(_user), ..._user });
         } catch (err) {
             res.status(500).json({ error: err.message });
         }

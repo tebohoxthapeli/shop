@@ -10,13 +10,12 @@ export default async function handler(req, res) {
 
         try {
             await dbConnect();
-            const user = await User.findOne({ email }).lean();
+            const user = await User.findOne({ email }).select("+password").lean();
             await dbDisconnect();
 
             if (user && compareSync(password, user.password)) {
                 delete user.password;
-                // console.log(user);
-                res.status(200).json({ token: signToken(user) });
+                res.status(200).json({ token: signToken(user), ...user });
             } else {
                 res.status(401).json({ error: "Incorrect credentials entered. Try again." });
             }
