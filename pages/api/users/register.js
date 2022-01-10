@@ -6,19 +6,19 @@ import { signToken } from "../../../utils/auth";
 
 export default async function handler(req, res) {
     if (req.method === "POST") {
-        const { username, email, password } = req.body;
+        const { password, email, ...rest } = req.body;
 
         try {
             await dbConnect();
             const foundUser = await User.findOne({ email }).select("+password").lean();
 
             if (foundUser) {
-                res.status(401).json({ error: "Email has already been used." });
+                res.status(403).json({ error: "Email has already been used." });
             }
 
             const user = await User.create({
-                username,
                 email,
+                ...rest,
                 password: hashSync(password),
             });
 

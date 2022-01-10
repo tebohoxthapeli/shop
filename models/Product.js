@@ -2,7 +2,7 @@ import { model, models, Schema } from "mongoose";
 
 const productSchema = new Schema(
     {
-        name: String,
+        productName: String,
         brand: String,
         price: Number,
         image: String,
@@ -10,10 +10,14 @@ const productSchema = new Schema(
         subcategory: String,
         sizes: [String],
         colours: [String],
-        likes: {
-            type: Number,
-            default: 0,
-        },
+        likes: [
+            {
+                user: {
+                    type: Schema.Types.ObjectId,
+                    ref: "User",
+                },
+            },
+        ],
     },
     { timestamps: true }
 );

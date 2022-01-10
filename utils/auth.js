@@ -9,7 +9,7 @@ export function verifyToken(handler) {
         const { authorization } = req.headers;
 
         if (!authorization) {
-            return res.status(401).json({ error: "Not authenticated." });
+            return res.status(401).json({ error: "Please log in." });
         }
 
         const token = authorization.split("Bearer ")[1];
@@ -30,7 +30,9 @@ export function verifyToken(handler) {
 export function verifyId(handler) {
     return async (req, res) => {
         if (req.query.id !== req.user._id) {
-            return res.status(403).json({ error: "This action is forbidden." });
+            return res
+                .status(403)
+                .json({ error: "You are not authorized to perform this action." });
         }
 
         return await handler(req, res);
@@ -40,7 +42,9 @@ export function verifyId(handler) {
 export function verifyIsAdmin(handler) {
     return async (req, res) => {
         if (!req.user.isAdmin) {
-            return res.status(403).json({ message: "Must be admin" });
+            return res
+                .status(403)
+                .json({ message: "You are not authorized to perform this action." });
         }
 
         return await handler(req, res);

@@ -14,7 +14,7 @@ export async function dbConnect() {
         await disconnect();
     }
 
-    const db = await connect(process.env.MONGODB_CONNECTION_STRING);
+    const db = await connect(process.env.MONGODB_URI);
     connectionReadyState = db.connections[0].readyState;
 
     if (connectionReadyState === 1) {

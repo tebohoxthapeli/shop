@@ -9,6 +9,13 @@ async function handler(req, res) {
 
     try {
         await dbConnect();
+        const email = req.body.email;
+
+        if (email) {
+            const foundUser = await User.findOne({ email });
+            if (foundUser) return res.status(403).json({ error: "Email already in use" });
+        }
+
         const user = await User.findByIdAndUpdate(req.query.id, { $set: req.body }, { new: true });
         await dbDisconnect();
 
