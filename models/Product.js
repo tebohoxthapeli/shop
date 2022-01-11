@@ -10,14 +10,7 @@ const productSchema = new Schema(
         subcategory: String,
         sizes: [String],
         colours: [String],
-        likes: [
-            {
-                user: {
-                    type: Schema.Types.ObjectId,
-                    ref: "User",
-                },
-            },
-        ],
+        likes: [String],
     },
     { timestamps: true }
 );

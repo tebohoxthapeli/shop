@@ -1,5 +1,5 @@
-import { verifyToken, verifyIsAdmin } from "../../../utils/auth";
-import { deleteProducts } from "../../../utils/functions";
+import { verifyToken, verifyIsAdmin } from "../../../../utils/auth";
+import { deleteProducts } from "../../../../utils/functions";
 
 async function handler(req, res) {
     await deleteProducts(req, res);

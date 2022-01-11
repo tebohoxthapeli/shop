@@ -220,9 +220,9 @@ const productArray = [
 export default async function handler(req, res) {
     try {
         await dbConnect();
-        await Product.create(productArray);
+        const products = await Product.create(productArray);
         await dbDisconnect();
-        return res.status(201).json({ message: "Products created" });
+        return res.status(201).json(products);
     } catch (err) {
         return res.status(500).json({ error: err.message });
     }
