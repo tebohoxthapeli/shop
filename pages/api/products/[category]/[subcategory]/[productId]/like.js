@@ -1,4 +1,5 @@
 import { dbConnect, dbDisconnect } from "../../../../../../utils/database";
+import { verifyToken } from "../../../../../../utils/auth";
 import Product from "../../../../../../models/Product";
 
 async function handler(req, res) {
@@ -34,4 +35,4 @@ async function handler(req, res) {
     }
 }
 
-export default handler;
+export default verifyToken(handler);
