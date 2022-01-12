@@ -11,6 +11,10 @@ const productSchema = new Schema(
         sizes: [String],
         colours: [String],
         likes: [String],
+        likeCount: {
+            type: Number,
+            default: 0,
+        },
     },
     { timestamps: true }
 );
