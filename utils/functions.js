@@ -5,9 +5,9 @@ export async function deleteProducts(req, res) {
     if (req.method !== "DELETE") return res.status(500).json({ error: "DELETE method expected." });
 
     try {
-        dbConnect();
+        await dbConnect();
         await Product.deleteMany(req.query);
-        dbDisconnect();
+        await dbDisconnect();
         return res.status(200).json({ message: "Deletion successful." });
     } catch (err) {
         return res.status(500).json({ error: err.message });
@@ -16,7 +16,7 @@ export async function deleteProducts(req, res) {
 
 export async function getProducts(req, res) {
     if (req.method !== "GET") return res.status(500).json({ error: "GET method expected." });
-    
+
     let { sortBy, maxPrice, brand, limit, ...rest } = req.query;
     if (!limit) limit = 0;
     let sort;
@@ -48,7 +48,7 @@ export async function getProducts(req, res) {
     }
 
     try {
-        dbConnect();
+        await dbConnect();
         let products;
 
         if (brand) {
@@ -69,7 +69,7 @@ export async function getProducts(req, res) {
                 .lean();
         }
 
-        dbDisconnect();
+        await dbDisconnect();
         return res.status(200).json(products);
     } catch (err) {
         return res.status(500).json({ error: err.message });

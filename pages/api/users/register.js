@@ -1,8 +1,9 @@
 import { hashSync } from "bcryptjs";
 
-import { dbConnect, dbDisconnect, convertBsonToObject } from "../../../utils/database";
 import User from "../../../models/User";
+import Bag from "../../../models/Bag";
 import { signToken } from "../../../utils/auth";
+import { dbConnect, dbDisconnect, convertBsonToObject } from "../../../utils/database";
 
 export default async function handler(req, res) {
     if (req.method === "POST") {
@@ -16,16 +17,17 @@ export default async function handler(req, res) {
                 res.status(403).json({ error: "Email has already been used." });
             }
 
-            const user = await User.create({
+            let user = await User.create({
                 email,
                 ...rest,
                 password: hashSync(password),
             });
 
+            user = convertBsonToObject(user);
+            await Bag.create({ user: user._id });
             await dbDisconnect();
-            const _user = convertBsonToObject(user);
-            delete _user.password;
-            res.status(201).json({ token: signToken(_user), ..._user });
+            delete user.password;
+            res.status(201).json({ token: signToken(user), ...user });
         } catch (err) {
             res.status(500).json({ error: err.message });
         }

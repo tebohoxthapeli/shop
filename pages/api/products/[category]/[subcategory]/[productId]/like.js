@@ -9,7 +9,7 @@ async function handler(req, res) {
     const userId = req.user._id;
 
     try {
-        dbConnect();
+        await dbConnect();
         const product = await Product.findById(productId).lean();
         if (!product) return res.status(404).json({ error: "Product not found." });
 

@@ -6,9 +6,9 @@ async function handler(req, res) {
     if (req.method !== "DELETE") return res.status(500).json({ error: "DELETE method expected." });
 
     try {
-        dbConnect();
+        await dbConnect();
         await Product.findByIdAndDelete(req.query.productId);
-        dbDisconnect();
+        await dbDisconnect();
         return res.status(200).json({ message: "Deletion successful" });
     } catch (err) {
         return res.status(500).json({ error: err.message });

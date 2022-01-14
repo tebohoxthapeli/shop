@@ -5,9 +5,9 @@ async function handler(req, res) {
     if (req.method !== "GET") return res.status(405).json({ error: "GET method expected." });
 
     try {
-        dbConnect();
+        await dbConnect();
         const product = await Product.findById(req.query.productId).lean();
-        dbDisconnect();
+        await dbDisconnect();
         return res.status(200).json(product);
     } catch (err) {
         return res.status(500).json({ error: err.message });

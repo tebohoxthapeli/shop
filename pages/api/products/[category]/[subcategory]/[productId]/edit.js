@@ -8,13 +8,15 @@ async function handler(req, res) {
     if (req.body.likes) delete req.body.likes;
 
     try {
-        dbConnect();
+        await dbConnect();
+
         const product = await Product.findByIdAndUpdate(
             req.query.productId,
             { $set: req.body },
             { new: true }
         );
-        dbDisconnect();
+
+        await dbDisconnect();
         return res.status(200).json(product);
     } catch (err) {
         return res.status(500).json({ error: err.message });

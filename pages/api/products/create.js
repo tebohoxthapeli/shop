@@ -6,9 +6,9 @@ async function handler(req, res) {
     if (req.method !== "POST") return res.status(405).json({ error: "POST method expected." });
 
     try {
-        dbConnect();
+        await dbConnect();
         const product = await Product.create(req.body);
-        dbDisconnect();
+        await dbDisconnect();
         return res.status(201).json(product);
     } catch (err) {
         return res.status(500).json({ error: err.message });
