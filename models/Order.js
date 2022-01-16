@@ -2,17 +2,21 @@ import { model, models, Schema } from "mongoose";
 
 const orderSchema = new Schema(
     {
-        cart: {
-            type: Schema.Types.ObjectId,
-            ref: "Cart",
-        },
         subtotal: Number,
-        address: {
-            type: Object,
-        },
         status: {
             type: String,
             default: "Pending",
+        },
+        address: {
+            type: Object,
+        },
+        user: {
+            type: Schema.Types.ObjectId,
+            ref: "User",
+        },
+        bag: {
+            type: Schema.Types.ObjectId,
+            ref: "Bag",
         },
     },
     {

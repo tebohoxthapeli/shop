@@ -4,23 +4,23 @@ import { dbConnect, dbDisconnect } from "../../../utils/database";
 
 async function handler(req, res) {
     if (req.method !== "PUT") return res.status(405).json({ error: "PUT method expected." });
-    const user = req.user._id;
+
+    const { _id, quantity, price } = req.body;
+    const findCondition = {
+        user: req.user._id,
+        ordered: false,
+    };
 
     try {
         await dbConnect();
-        const { products } = await Bag.findOne({ user }).lean();
+        const { products } = await Bag.findOne(findCondition).lean();
         let foundIndex;
 
         const foundProduct = products.find((product, index) => {
-            if (product._id === req.body._id) {
+            if (product._id === _id) {
                 foundIndex = index;
-
-                if (req.body.quantity) {
-                    product.quantity = req.body.quantity;
-                } else {
-                    product.quantity++;
-                }
-
+                product.quantity = quantity ? quantity : ++product.quantity;
+                product.total = product.quantity * product.price;
                 return product;
             }
         });
@@ -28,16 +28,13 @@ async function handler(req, res) {
         if (foundProduct) {
             products[foundIndex] = foundProduct;
         } else {
-            products.unshift(req.body);
+            const total = quantity ? quantity * price : price;
+            products.unshift({ total, ...req.body });
         }
 
         const updatedBag = await Bag.findOneAndUpdate(
-            { user },
-            {
-                $set: {
-                    products,
-                },
-            },
+            findCondition,
+            { $set: { products } },
             { new: true }
         );
 

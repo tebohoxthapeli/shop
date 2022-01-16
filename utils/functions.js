@@ -19,6 +19,7 @@ export async function getProducts(req, res) {
 
     let { sortBy, maxPrice, brand, limit, ...rest } = req.query;
     if (!limit) limit = 0;
+    if (!maxPrice) maxPrice = 10000;
     let sort;
 
     switch (sortBy) {
@@ -58,15 +59,13 @@ export async function getProducts(req, res) {
                 .where("brand")
                 .in(brand)
                 .sort(sort)
-                .limit(parseInt(limit))
-                .lean();
+                .limit(parseInt(limit));
         } else {
             products = await Product.find(rest)
                 .where("price")
                 .lte(maxPrice)
                 .sort(sort)
-                .limit(parseInt(limit))
-                .lean();
+                .limit(parseInt(limit));
         }
 
         await dbDisconnect();

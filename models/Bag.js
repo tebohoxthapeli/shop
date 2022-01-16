@@ -3,6 +3,10 @@ import { model, models, Schema } from "mongoose";
 const bagSchema = new Schema(
     {
         user: String,
+        ordered: {
+            type: Boolean,
+            default: false,
+        },
         products: [
             {
                 _id: String,
@@ -10,8 +14,9 @@ const bagSchema = new Schema(
                 brand: String,
                 size: String,
                 colour: String,
-                price: Number,
                 image: String,
+                price: Number,
+                total: Number,
                 quantity: {
                     type: Number,
                     default: 1,
@@ -19,7 +24,6 @@ const bagSchema = new Schema(
             },
         ],
     },
-
     {
         timestamps: true,
     }

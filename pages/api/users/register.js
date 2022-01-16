@@ -19,8 +19,8 @@ export default async function handler(req, res) {
 
             let user = await User.create({
                 email,
-                ...rest,
                 password: hashSync(password),
+                ...rest,
             });
 
             user = convertBsonToObject(user);

@@ -6,6 +6,7 @@ async function handler(req, res) {
     if (req.method !== "PUT") return res.status(405).json({ error: "PUT method expected." });
 
     if (req.body.likes) delete req.body.likes;
+    if (req.body.likeCount) delete req.body.likeCount;
 
     try {
         await dbConnect();
