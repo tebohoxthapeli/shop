@@ -10,7 +10,7 @@ async function handler(req, res) {
 
     try {
         await dbConnect();
-        const order = await Order.findOne({ bag: bagId, status: "Pending" });
+        const order = await Order.findOne({ bag: bagId, status: "Pending" }).lean();
 
         if (!order) {
             return res.status(409).json({
@@ -18,17 +18,18 @@ async function handler(req, res) {
             });
         }
 
-        const { products } = await Bag.findById(bagId).lean();
+        let { products } = await Bag.findById(bagId).lean();
+        products = products.filter(({ _id }) => _id !== req.query.productId);
 
-        const bag = await Bag.findByIdAndUpdate(
-            bagId,
+        await Order.findByIdAndUpdate(
+            order._id,
             {
-                $set: {
-                    products: products.filter(({ _id }) => _id !== req.query.productId),
-                },
+                $set: { subtotal: products.reduce((sum, { total }) => sum + total, 0) },
             },
             { new: true }
         );
+
+        const bag = await Bag.findByIdAndUpdate(bagId, { $set: { products } }, { new: true });
 
         await dbDisconnect();
         return res.status(200).json(bag);

@@ -27,9 +27,9 @@ export default async function handler(req, res) {
             await Bag.create({ user: user._id });
             await dbDisconnect();
             delete user.password;
-            res.status(201).json({ token: signToken(user), ...user });
+            return res.status(201).json({ token: signToken(user), ...user });
         } catch (err) {
-            res.status(500).json({ error: err.message });
+            return res.status(500).json({ error: err.message });
         }
     } else {
         res.status(405).json({ error: "POST method expected" });

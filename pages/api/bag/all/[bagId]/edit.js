@@ -37,6 +37,10 @@ async function handler(req, res) {
 
         products[foundIndex] = foundProduct;
 
+        await Order.findByIdAndUpdate(order._id, {
+            $set: { subtotal: products.reduce((sum, { total }) => total + sum, 0) },
+        });
+
         const bag = await Bag.findByIdAndUpdate(bagId, { $set: { products } }, { new: true });
 
         await dbDisconnect();

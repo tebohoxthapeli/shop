@@ -6,22 +6,23 @@ async function handler(req, res) {
     if (req.method !== "PUT") return res.status(405).json({ error: "PUT method expected." });
 
     const { orderId } = req.query;
+    const { status } = req.body;
 
     try {
         await dbConnect();
         const order = await Order.findById(orderId).lean();
 
-        if (order.status !== "Pending") {
-            return res.status(409).json({
-                error: "This order is either already being shipped or has arrived at its destination.",
-            });
+        if (status === "Cancelled") {
+            if (order.status !== "Pending") {
+                return res.status(409).json({
+                    error: "Action cannot be completed. This order is either already being shipped or has arrived at its destination.",
+                });
+            }
         }
 
         const updatedOrder = await Order.findByIdAndUpdate(
             orderId,
-            {
-                $set: { status: "Cancelled" },
-            },
+            { $set: { status } },
             { new: true }
         );
 

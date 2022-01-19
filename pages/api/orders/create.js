@@ -17,7 +17,7 @@ async function handler(req, res) {
             { new: true }
         ).lean();
 
-        const subtotal = products.reduce((total, { price }) => total + price, 0);
+        const subtotal = products.reduce((sum, { total }) => sum + total, 0);
         const order = await Order.create({ user, bag: _id, subtotal });
         await Bag.create({ user });
         await dbDisconnect();
