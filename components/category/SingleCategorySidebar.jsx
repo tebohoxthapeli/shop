@@ -24,7 +24,7 @@ export default function SingleCategorySidebar() {
             </Typography>
 
             <Accordion disableGutters>
-                <AccordionSummary expandIcon={<ExpandMoreIcon />} id="sort-by">
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                     <Typography>Sort by</Typography>
                 </AccordionSummary>
 

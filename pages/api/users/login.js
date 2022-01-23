@@ -6,7 +6,7 @@ import { signToken } from "../../../utils/auth";
 
 export default async function handler(req, res) {
     if (req.method === "POST") {
-        const { email, password } = req.body;
+        let { email, password } = req.body;
 
         try {
             await dbConnect();
