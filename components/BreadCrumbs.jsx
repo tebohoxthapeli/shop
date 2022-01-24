@@ -1,7 +1,7 @@
 import Breadcrumbs from "@mui/material/Breadcrumbs";
 import Typography from "@mui/material/Typography";
 import Link from "@mui/material/Link";
-import Stack from "@mui/material/Stack";
+import Box from "@mui/material/Box";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 
 function handleClick(event) {
@@ -18,11 +18,12 @@ export default function BreadcrumbComponent() {
             Jackets and Coats
         </Typography>,
     ];
+
     return (
-        <Stack spacing={2} sx={{ pl: 4, pt: 1 }}>
+        <Box sx={{ pb: 4 }}>
             <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />}>
                 {breadcrumbs}
             </Breadcrumbs>
-        </Stack>
+        </Box>
     );
 }

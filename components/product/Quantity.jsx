@@ -2,10 +2,10 @@ import { useState } from "react";
 
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
-import Typography from "@mui/material/Typography";
 import AddIcon from "@mui/icons-material/Add";
-import RemoveIcon from "@mui/icons-material/Remove";
 import IconButton from "@mui/material/IconButton";
+import Typography from "@mui/material/Typography";
+import RemoveIcon from "@mui/icons-material/Remove";
 
 const style = {
     flex: 1,
@@ -61,18 +61,4 @@ export default function Quantity() {
             </Box>
         </Paper>
     );
-}
-
-{
-    /* <IconButton>
-                    <RemoveIcon />
-                </IconButton>
-
-                <Typography variant="h6" sx={{ width: "2rem" }}>
-                    0
-                </Typography>
-
-                <IconButton>
-                    <AddIcon />
-                </IconButton> */
 }

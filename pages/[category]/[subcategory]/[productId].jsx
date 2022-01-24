@@ -6,84 +6,80 @@ import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import ToggleButton from "@mui/material/ToggleButton";
-import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import ShoppingBagIcon from "@mui/icons-material/ShoppingBag";
+import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 
+import ProductModel from "../../../models/Product";
+import Color from "../../../components/product/Color";
+import Quantity from "../../../components/product/Quantity";
 import Breadcrumbs from "../../../components/BreadCrumbs";
-import Color from "../../../components/productPage/Color";
-import Quantity from "../../../components/productPage/Quantity";
+import { dbConnect, dbDisconnect, convertBsonToObject } from "../../../utils/database";
 
-const colors = ["red", "blue", "yellow"];
-
-export default function Product() {
-    const [alignment, setAlignment] = useState("m");
-
-    const handleChange = (event, newAlignment) => {
-        setAlignment(newAlignment);
+export default function Product({
+    product: { productName, brand, price, image, sizes, colours, likes },
+}) {
+    const [size, setSize] = useState(null);
+    const handleChange = (event, newSize) => {
+        setSize(newSize);
     };
 
     const [likeProduct, setLikeProduct] = useState(null);
-
     const handleLikeProduct = (event, newLikeProduct) => {
         setLikeProduct(newLikeProduct);
     };
 
     return (
-        <Box>
+        <Box sx={{ p: 4 }}>
             <Breadcrumbs />
 
-            <Stack direction="row" spacing={2} sx={{ p: 4, justifyContent: "center" }}>
+            <Stack direction="row" spacing={4}>
                 <Box>
-                    <Image
-                        src="/images/shirts/casual shirt.jpg"
-                        alt="product image"
-                        height={900}
-                        width={600}
-                    />
+                    <Image src={image} alt={image} height={900} width={600} />
                 </Box>
 
-                <Box>
-                    <Typography variant="h4">Tbar art t-shirt</Typography>
-                    <Typography variant="body1" color="text.secondary">
-                        Cotton On
-                    </Typography>
+                <Stack spacing={5}>
+                    <Box>
+                        <Typography variant="h5">{productName}</Typography>
 
-                    <Typography variant="h3" sx={{ my: 2 }}>
-                        R209
-                    </Typography>
+                        <Typography variant="body1" color="text.secondary">
+                            {brand}
+                        </Typography>
 
-                    <Box sx={{ mb: 8, mt: 6 }}>
+                        <Typography variant="h3">R{price}</Typography>
+                    </Box>
+
+                    <Box>
                         <Typography variant="body2" sx={{ mb: 1 }}>
                             Select a size:
                         </Typography>
 
                         <ToggleButtonGroup
                             color="primary"
-                            value={alignment}
+                            value={size}
                             exclusive
                             onChange={handleChange}
                         >
-                            <ToggleButton value="xs">XS</ToggleButton>
-                            <ToggleButton value="s">S</ToggleButton>
-                            <ToggleButton value="m">M</ToggleButton>
-                            <ToggleButton value="l">L</ToggleButton>
-                            <ToggleButton value="xl">XL</ToggleButton>
+                            {sizes.map((size) => (
+                                <ToggleButton value={size} key={size}>
+                                    {size}
+                                </ToggleButton>
+                            ))}
                         </ToggleButtonGroup>
                     </Box>
 
-                    <Box sx={{ mb: 8 }}>
+                    <Box>
                         <Typography variant="body2" sx={{ mb: 1 }}>
                             Select a colour:
                         </Typography>
 
                         <Stack direction="row" spacing={1}>
-                            {colors.map((color, index) => (
-                                <Color key={index} color={color} />
+                            {colours.map((colour) => (
+                                <Color color={colour} key={colour} />
                             ))}
                         </Stack>
                     </Box>
 
-                    <Box sx={{ mb: 8 }}>
+                    <Box>
                         <Typography variant="body2" sx={{ mb: 1 }}>
                             Quantity:
                         </Typography>
@@ -93,13 +89,13 @@ export default function Product() {
 
                     <Button
                         variant="contained"
-                        sx={{ mb: 10, mt: 2 }}
                         startIcon={<ShoppingBagIcon />}
+                        // sx={{ mb: 10, mt: 2 }}
                     >
                         Add to shopping bag
                     </Button>
 
-                    <Box sx={{ mb: 8 }}>
+                    <Box>
                         <Typography variant="body2" sx={{ mb: 1 }}>
                             Do you like this product?:
                         </Typography>
@@ -114,8 +110,31 @@ export default function Product() {
                             <ToggleButton value="n">No</ToggleButton>
                         </ToggleButtonGroup>
                     </Box>
-                </Box>
+                </Stack>
             </Stack>
         </Box>
     );
 }
+
+export async function getStaticProps({ params: { productId } }) {
+    try {
+        await dbConnect();
+        const product = convertBsonToObject(await ProductModel.findById(productId));
+        await dbDisconnect();
+
+        if (!product) {
+            return {
+                notFound: true,
+            };
+        }
+
+        return {
+            props: { product },
+        };
+    } catch (err) {
+        console.log("Error:", err.message);
+        return;
+    }
+}
+
+export async function getStaticPaths() {}

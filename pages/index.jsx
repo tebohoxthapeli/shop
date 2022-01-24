@@ -1,15 +1,17 @@
+import Box from "@mui/material/Box";
+
+import Product from "../models/Product";
 import Slider from "../components/Slider";
+import Category from "../models/Category";
 import Main from "../components/home/Main";
 import { dbConnect, dbDisconnect, convertBsonToObject } from "../utils/database";
-import Category from "../models/Category";
-import Product from "../models/Product";
 
 export default function Home(props) {
     return (
-        <div>
+        <Box>
             <Slider />
             <Main {...props} />
-        </div>
+        </Box>
     );
 }
 

@@ -1,5 +1,5 @@
-import { convertBsonToObject, dbConnect, dbDisconnect } from "./database";
 import Product from "../models/Product";
+import { convertBsonToObject, dbConnect, dbDisconnect } from "./database";
 
 export async function deleteProducts(req, res) {
     if (req.method !== "DELETE") return res.status(500).json({ error: "DELETE method expected." });
