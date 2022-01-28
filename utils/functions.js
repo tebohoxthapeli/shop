@@ -76,8 +76,6 @@ export async function getProducts(req, res) {
 }
 
 export async function findProducts(query) {
-    console.log("query:", query);
-
     let { sortBy, maxPrice, limit, brand, ...findCondition } = query;
     maxPrice = maxPrice || 10000;
     limit = parseInt(limit) || 0; // 0 will get all items
@@ -125,7 +123,6 @@ export async function findProducts(query) {
         }
 
         await dbDisconnect();
-        console.log("products:", convertBsonToObject(products));
         return convertBsonToObject(products);
     } catch (err) {
         console.log("Error:", err.message);

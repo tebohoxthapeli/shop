@@ -8,7 +8,7 @@ export default function Main({ products, category, subcategory }) {
     return (
         <Box>
             <Typography variant="h4" gutterBottom>
-                {category ? category.name : subcategory}: All
+                {subcategory ? subcategory : category.name}: All
             </Typography>
 
             <Grid container spacing={2}>

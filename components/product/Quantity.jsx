@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import AddIcon from "@mui/icons-material/Add";
@@ -14,29 +12,17 @@ const style = {
     justifyContent: "center",
 };
 
-export default function Quantity() {
-    const [quantity, setQuantity] = useState(0);
-
-    const handleClick = (operator) => {
-        if (operator === "sub") {
-            if (quantity === 0) return;
-            setQuantity(quantity - 1);
-        } else {
-            if (quantity === 10) return;
-            setQuantity(quantity + 1);
-        }
-    };
-
+export default function Quantity({ handleQuantityChange, quantity }) {
     return (
         <Paper
             sx={{
-                width: "9rem",
+                width: "15rem",
                 display: "flex",
                 alignItems: "center",
             }}
         >
             <Box sx={style}>
-                <IconButton onClick={() => handleClick("sub")}>
+                <IconButton onClick={() => handleQuantityChange("sub")} size="small">
                     <RemoveIcon />
                 </IconButton>
             </Box>
@@ -51,11 +37,11 @@ export default function Quantity() {
                     borderRight: "1px solid grey",
                 }}
             >
-                <Typography variant="h6">{quantity}</Typography>
+                <Typography variant="body1">{quantity}</Typography>
             </Box>
 
             <Box sx={style}>
-                <IconButton onClick={() => handleClick("add")}>
+                <IconButton onClick={() => handleQuantityChange("add")} size="small">
                     <AddIcon />
                 </IconButton>
             </Box>

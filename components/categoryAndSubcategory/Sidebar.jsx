@@ -1,4 +1,6 @@
 import NextLink from "next/link";
+import { useRouter } from "next/router";
+import { useState, useEffect } from "react";
 
 import List from "@mui/material/List";
 import Box from "@mui/material/Box";
@@ -53,6 +55,55 @@ const brands = [
 ];
 
 export default function Sidebar({ category }) {
+    const { query, ...router } = useRouter();
+
+    const [filters, setFilters] = useState({
+        sortBy: query.sortBy || "newest",
+        maxPrice: query.maxPrice || 10000,
+        brand: query.brand ? (typeof query.brand === "string" ? [query.brand] : query.brand) : [],
+    });
+
+    // const [filters, setFilters] = useState({ sortBy: "newest", maxPrice: 10000, brand: [] });
+
+    const handleFiltersChange = (e) => {
+        setFilters({ ...filters, [e.target.name]: e.target.value });
+    };
+
+    const handleBrandChange = (brand) => {
+        const brandArray = filters.brand;
+
+        if (brandArray.find((item) => item === brand)) {
+            setFilters({
+                ...filters,
+                brand: brandArray.filter((item) => item !== brand),
+            });
+        } else {
+            setFilters({ ...filters, brand: brandArray.push(brand) });
+        }
+    };
+
+    useEffect(() => {
+        const urlObject = {
+            query: {
+                category: query.category,
+                sortBy: filters.sortBy,
+                maxPrice: filters.maxPrice,
+            },
+        };
+
+        if (filters.brand.length > 0) urlObject.query.brand = filters.brand;
+
+        if (query.subcategory) {
+            urlObject.pathname = "/[category]/[subcategory]";
+            urlObject.query.subcategory = query.subcategory;
+        } else {
+            urlObject.pathname = "/[category]";
+        }
+
+        router.replace(urlObject);
+        // eslint-disable-next-line
+    }, [filters.brand, filters.maxPrice, filters.sortBy, query.subcategory, query.category]);
+
     return (
         <Box>
             <Typography variant="h6" gutterBottom>
@@ -66,7 +117,11 @@ export default function Sidebar({ category }) {
 
                 <AccordionDetails>
                     <FormControl component="fieldset">
-                        <RadioGroup defaultValue="newest" name="sortBy">
+                        <RadioGroup
+                            value={filters.sortBy}
+                            onChange={handleFiltersChange}
+                            name="sortBy"
+                        >
                             {sortByOptions.map(({ label, value }) => (
                                 <FormControlLabel
                                     value={value}
@@ -87,7 +142,11 @@ export default function Sidebar({ category }) {
 
                 <AccordionDetails>
                     <FormControl component="fieldset">
-                        <RadioGroup defaultValue="10000" name="maxPrice">
+                        <RadioGroup
+                            value={filters.maxPrice}
+                            onChange={handleFiltersChange}
+                            name="maxPrice"
+                        >
                             {maxPriceOptions.map(({ label, value }) => (
                                 <FormControlLabel
                                     value={value}
@@ -110,7 +169,18 @@ export default function Sidebar({ category }) {
                     <FormGroup>
                         {brands.map((brand) => (
                             <FormControlLabel
-                                control={<Checkbox size="small" />}
+                                control={
+                                    <Checkbox
+                                        size="small"
+                                        name={brand}
+                                        checked={
+                                            filters.brand.find((item) => item === brand)
+                                                ? true
+                                                : false
+                                        }
+                                        onChange={() => handleBrandChange(brand)}
+                                    />
+                                }
                                 label={brand}
                                 key={brand}
                             />
@@ -127,12 +197,16 @@ export default function Sidebar({ category }) {
 
                     <AccordionDetails>
                         <List>
-                            {category.subcategories.map((sc, index) => (
-                                <NextLink href={`/${category.name}/${sc}`} passHref key={sc}>
+                            {category.subcategories.map((subcategory, index) => (
+                                <NextLink
+                                    href={`/${category.name}/${subcategory}`}
+                                    passHref
+                                    key={subcategory}
+                                >
                                     <Link underline="none" color="inherit">
                                         <ListItem disablePadding>
                                             <ListItemButton>
-                                                <ListItemText primary={sc} />
+                                                <ListItemText primary={subcategory} />
                                             </ListItemButton>
                                         </ListItem>
 
