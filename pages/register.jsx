@@ -1,26 +1,32 @@
-import { useState } from "react";
-import Image from "next/image";
+import axios from "axios";
 import NextLink from "next/link";
+import Image from "next/image";
+import { useSnackbar } from "notistack";
+import { useRouter } from "next/router";
+import { useState, useEffect } from "react";
 
-import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
+import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Checkbox from "@mui/material/Checkbox";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
-import Button from "@mui/material/Button";
 import Visibility from "@mui/icons-material/Visibility";
+import Typography from "@mui/material/Typography";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import InputAdornment from "@mui/material/InputAdornment";
+import FormControlLabel from "@mui/material/FormControlLabel";
 
-import { Formik, Form, Field, ErrorMessage } from "formik";
 import { object, string, boolean } from "yup";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+
+import { getError } from "../utils/error";
+import { useDataLayerValue } from "../context/DataLayer";
 
 const initialValues = {
+    username: "",
     email: "",
     password: "",
-    username: "",
     termsAndConditions: false,
 };
 
@@ -42,11 +48,16 @@ const validationSchema = object({
     ),
 });
 
-function onSubmit(values) {
-    console.log("form values", values);
-}
-
 export default function Register() {
+    const router = useRouter();
+    const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+    const [{ user }, dispatch] = useDataLayerValue();
+
+    useEffect(() => {
+        if (user) router.replace("/");
+        // eslint-disable-next-line
+    }, [user]);
+
     const [showPassword, setShowPassword] = useState(false);
 
     const handleClickShowPassword = () => {
@@ -55,6 +66,20 @@ export default function Register() {
 
     const handleMouseDownPassword = (event) => {
         event.preventDefault();
+    };
+
+    const onSubmit = async (values) => {
+        closeSnackbar();
+        delete values.termsAndConditions;
+
+        try {
+            const { data } = await axios.post("/api/users/register", values);
+            dispatch({ type: "USER_LOGIN", payload: data });
+        } catch (err) {
+            enqueueSnackbar(getError(err), {
+                variant: "error",
+            });
+        }
     };
 
     return (

@@ -22,7 +22,7 @@ export default function Quantity({ handleQuantityChange, quantity }) {
             }}
         >
             <Box sx={style}>
-                <IconButton onClick={() => handleQuantityChange("sub")} size="small">
+                <IconButton onClick={() => handleQuantityChange("subtract")} size="small">
                     <RemoveIcon />
                 </IconButton>
             </Box>

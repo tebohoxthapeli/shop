@@ -1,20 +1,26 @@
-import { useState } from "react";
-import Image from "next/image";
+import axios from "axios";
 import NextLink from "next/link";
+import Image from "next/image";
+import { useSnackbar } from "notistack";
+import { useRouter } from "next/router";
+import { useState, useEffect } from "react";
 
-import Typography from "@mui/material/Typography";
-import Link from "@mui/material/Link";
 import Box from "@mui/material/Box";
+import Link from "@mui/material/Link";
 import Stack from "@mui/material/Stack";
-import TextField from "@mui/material/TextField";
-import InputAdornment from "@mui/material/InputAdornment";
-import IconButton from "@mui/material/IconButton";
 import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField";
+import IconButton from "@mui/material/IconButton";
 import Visibility from "@mui/icons-material/Visibility";
+import Typography from "@mui/material/Typography";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import InputAdornment from "@mui/material/InputAdornment";
 
-import { Formik, Form, Field } from "formik";
 import { object, string } from "yup";
+import { Formik, Form, Field } from "formik";
+
+import { getError } from "../utils/error";
+import { useDataLayerValue } from "../context/DataLayer";
 
 const initialValues = {
     email: "",
@@ -22,15 +28,22 @@ const initialValues = {
 };
 
 const validationSchema = object({
-    email: string().required("Enter your email address."),
+    email: string()
+        .email("Invalid email address format entered.")
+        .required("Enter your email address."),
     password: string().required("Enter your password."),
 });
 
-function onSubmit(values) {
-    console.log("form values", values);
-}
-
 export default function Login() {
+    const router = useRouter();
+    const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+    const [{ user }, dispatch] = useDataLayerValue();
+
+    useEffect(() => {
+        if (user) router.replace("/");
+        // eslint-disable-next-line
+    }, [user]);
+
     const [showPassword, setShowPassword] = useState(false);
 
     const handleClickShowPassword = () => {
@@ -39,6 +52,19 @@ export default function Login() {
 
     const handleMouseDownPassword = (event) => {
         event.preventDefault();
+    };
+
+    const onSubmit = async (values) => {
+        closeSnackbar();
+
+        try {
+            const { data } = await axios.post("/api/users/login", values);
+            dispatch({ type: "USER_LOGIN", payload: data });
+        } catch (err) {
+            enqueueSnackbar(getError(err), {
+                variant: "error",
+            });
+        }
     };
 
     return (

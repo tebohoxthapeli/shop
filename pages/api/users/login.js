@@ -5,24 +5,22 @@ import User from "../../../models/User";
 import { signToken } from "../../../utils/auth";
 
 export default async function handler(req, res) {
-    if (req.method === "POST") {
-        let { email, password } = req.body;
+    if (req.method !== "POST") return res.status(405).json({ error: "POST method expected" });
 
-        try {
-            await dbConnect();
-            const user = await User.findOne({ email }).select("+password").lean();
-            await dbDisconnect();
+    let { email, password } = req.body;
 
-            if (user && compareSync(password, user.password)) {
-                delete user.password;
-                res.status(200).json({ token: signToken(user), ...user });
-            } else {
-                res.status(401).json({ error: "Incorrect credentials entered. Try again." });
-            }
-        } catch (err) {
-            res.status(500).json({ error: err.message });
+    try {
+        await dbConnect();
+        const user = await User.findOne({ email }).select("+password").lean();
+        await dbDisconnect();
+
+        if (user && compareSync(password, user.password)) {
+            delete user.password;
+            return res.status(200).json({ token: signToken(user), ...user });
+        } else {
+            return res.status(401).json({ error: "Incorrect credentials entered. Try again." });
         }
-    } else {
-        res.status(405).json({ error: "POST method expected" });
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
     }
 }

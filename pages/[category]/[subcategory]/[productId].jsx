@@ -33,12 +33,10 @@ export default function Product({
     };
 
     const handleQuantityChange = (operator) => {
-        if (operator === "sub") {
-            if (quantity === 1) return;
-            setQuantity(quantity - 1);
+        if (operator === "subtract") {
+            quantity > 1 && setQuantity(quantity - 1);
         } else {
-            if (quantity === 10) return;
-            setQuantity(quantity + 1);
+            quantity < 10 && setQuantity(quantity + 1);
         }
     };
 

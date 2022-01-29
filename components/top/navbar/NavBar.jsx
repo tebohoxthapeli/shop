@@ -1,23 +1,30 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import NextLink from "next/link";
 
-import AppBar from "@mui/material/AppBar";
-import Link from "@mui/material/Link";
 import Box from "@mui/material/Box";
-import Toolbar from "@mui/material/Toolbar";
-import IconButton from "@mui/material/IconButton";
-import Typography from "@mui/material/Typography";
-import Badge from "@mui/material/Badge";
-import MenuItem from "@mui/material/MenuItem";
+import Link from "@mui/material/Link";
 import Menu from "@mui/material/Menu";
+import Badge from "@mui/material/Badge";
+import Toolbar from "@mui/material/Toolbar";
+import AppBar from "@mui/material/AppBar";
+import MenuItem from "@mui/material/MenuItem";
+import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
-import AccountCircle from "@mui/icons-material/AccountCircle";
+import Typography from "@mui/material/Typography";
 import MoreIcon from "@mui/icons-material/MoreVert";
+import AccountCircle from "@mui/icons-material/AccountCircle";
 import ShoppingBagIcon from "@mui/icons-material/ShoppingBag";
 
 import SearchBar from "./SearchBar";
+import { useDataLayerValue } from "../../../context/DataLayer";
 
 export default function NavBar() {
+    const [{ bag, user }] = useDataLayerValue();
+
+    useEffect(() => {
+        console.log("bag:", bag);
+    }, [bag]);
+
     const [accountMenuAnchor, setAccountMenuAnchor] = useState(null);
     const [moreMenuAnchor, setMoreMenuAnchor] = useState(null);
 
@@ -41,6 +48,8 @@ export default function NavBar() {
         handleMoreMenuClose();
     };
 
+    const handleLogout = () => {};
+
     const renderAccountMenu = (
         <Menu
             anchorEl={accountMenuAnchor}
@@ -51,21 +60,27 @@ export default function NavBar() {
             onClose={handleAccountMenuClose}
             keepMounted
         >
-            <MenuItem onClick={handleAccountMenuClose}>
-                <NextLink href="/login" passHref>
-                    <Link color="inherit" underline="none">
-                        Login
-                    </Link>
-                </NextLink>
-            </MenuItem>
+            {user ? (
+                <MenuItem onClick={handleLogout}>Logout</MenuItem>
+            ) : (
+                <>
+                    <MenuItem onClick={handleAccountMenuClose}>
+                        <NextLink href="/login" passHref>
+                            <Link color="inherit" underline="none">
+                                Login
+                            </Link>
+                        </NextLink>
+                    </MenuItem>
 
-            <MenuItem onClick={handleAccountMenuClose}>
-                <NextLink href="/register" passHref>
-                    <Link color="inherit" underline="none">
-                        Register
-                    </Link>
-                </NextLink>
-            </MenuItem>
+                    <MenuItem onClick={handleAccountMenuClose}>
+                        <NextLink href="/register" passHref>
+                            <Link color="inherit" underline="none">
+                                Register
+                            </Link>
+                        </NextLink>
+                    </MenuItem>
+                </>
+            )}
         </Menu>
     );
 
