@@ -1,6 +1,6 @@
 export const initialState = {
     user: null,
-    bag: {},
+    bag: null,
 };
 
 export function reducer(state, { type, payload }) {
@@ -10,6 +10,9 @@ export function reducer(state, { type, payload }) {
 
         case "USER_LOGIN":
             return { ...state, user: payload };
+
+        case "USER_LOGOUT":
+            return { ...state, user: null };
 
         default:
             return state;

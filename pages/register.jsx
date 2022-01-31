@@ -72,13 +72,33 @@ export default function Register() {
         closeSnackbar();
         delete values.termsAndConditions;
 
-        try {
-            const { data } = await axios.post("/api/users/register", values);
-            dispatch({ type: "USER_LOGIN", payload: data });
-        } catch (err) {
-            enqueueSnackbar(getError(err), {
-                variant: "error",
+        const registerUserResponse = await axios
+            .post("/api/users/register", values)
+            .catch((error) => {
+                enqueueSnackbar(getError(error), {
+                    variant: "error",
+                });
             });
+
+        if (registerUserResponse) {
+            const userInfo = registerUserResponse.data;
+
+            const getBagResponse = await axios
+                .get("api/bag", {
+                    headers: { Authorization: `Bearer ${userInfo.token}` },
+                })
+                .catch((error) => {
+                    if (error.response) {
+                        console.log(error.response.data);
+                    } else if (error.request) {
+                        console.log(error.request);
+                    } else {
+                        console.log("Error:", error.message);
+                    }
+                });
+
+            getBagResponse && dispatch({ type: "BAG_UPDATE", payload: getBagResponse.data });
+            dispatch({ type: "USER_LOGIN", payload: userInfo });
         }
     };
 

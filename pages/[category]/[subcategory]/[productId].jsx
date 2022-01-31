@@ -1,27 +1,35 @@
-import { useState, useEffect } from "react";
+import axios from "axios";
 import Image from "next/image";
+import { useState } from "react";
+import { useSnackbar } from "notistack";
 
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
+import Divider from "@mui/material/Divider";
 import Typography from "@mui/material/Typography";
 import ToggleButton from "@mui/material/ToggleButton";
 import ShoppingBagIcon from "@mui/icons-material/ShoppingBag";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
-import Divider from "@mui/material/Divider";
 
 import ProductModel from "../../../models/Product";
 import Color from "../../../components/product/Color";
 import Quantity from "../../../components/product/Quantity";
+import { useDataLayerValue } from "../../../context/DataLayer";
 import Breadcrumbs from "../../../components/BreadCrumbs";
 import { dbConnect, dbDisconnect, convertBsonToObject } from "../../../utils/database";
 
+// change the API to account for the same product, but in a different size
+
 export default function Product({
-    product: { productName, brand, price, image, sizes, colours }, // left out likes
+    product: { _id, productName, brand, price, image, sizes, colours }, // left out likes
 }) {
+    const [{ user }, dispatch] = useDataLayerValue();
+    const { enqueueSnackbar } = useSnackbar();
+
     const [size, setSize] = useState(null);
-    const [selectedColour, setSelectedColour] = useState(null);
     const [quantity, setQuantity] = useState(1);
+    const [selectedColour, setSelectedColour] = useState(null);
     const [isProductLiked, setIsProductLiked] = useState(null);
 
     const handleSizeChange = (e, newValue) => {
@@ -40,18 +48,54 @@ export default function Product({
         }
     };
 
-    const addToShoppingBag = () => {
-        const errors = [];
+    const addToShoppingBag = async () => {
+        const product = {
+            _id,
+            productName,
+            brand,
+            size,
+            image,
+            price,
+            quantity,
+            colour: selectedColour,
+        };
 
-        if (!size) errors.push("Size is required.");
-        if (!selectedColour) errors.push("Colour is required.");
+        const errors = [];
+        !size && errors.push("Size is required.");
+        !selectedColour && errors.push("Colour is required.");
 
         if (errors.length > 0) {
-            console.log("Errors:", errors);
+            errors.forEach((message) => {
+                enqueueSnackbar(message, {
+                    variant: "error",
+                });
+            });
         } else {
-            console.log("Size:", size);
-            console.log("Colour:", selectedColour);
-            console.log("Quantity:", quantity);
+            const editBagResponse = await axios
+                .put("/api/bag/add", product, {
+                    headers: { Authorization: `Bearer ${user.token}` },
+                })
+                .catch((error) => {
+                    if (error.response) {
+                        console.log(error.response.data);
+                    } else if (error.request) {
+                        console.log(error.request);
+                    } else {
+                        console.log("Error:", error.message);
+                    }
+                });
+
+            if (editBagResponse) {
+                dispatch({ type: "BAG_UPDATE", payload: editBagResponse.data });
+
+                enqueueSnackbar("Product successfully added to bag", {
+                    variant: "success",
+                });
+
+                setSize(null);
+                setQuantity(1);
+                setSelectedColour(null);
+            }
         }
     };
 

@@ -6,6 +6,7 @@ async function handler(req, res) {
     if (req.method !== "PUT") return res.status(405).json({ error: "PUT method expected." });
 
     const { _id, quantity, price } = req.body;
+
     const findCondition = {
         user: req.user._id,
         ordered: false,
@@ -19,7 +20,7 @@ async function handler(req, res) {
         const foundProduct = products.find((product, index) => {
             if (product._id === _id) {
                 foundIndex = index;
-                product.quantity = quantity ? quantity : ++product.quantity;
+                product.quantity += quantity;
                 product.total = product.quantity * product.price;
                 return product;
             }
@@ -28,8 +29,8 @@ async function handler(req, res) {
         if (foundProduct) {
             products[foundIndex] = foundProduct;
         } else {
-            const total = quantity ? quantity * price : price;
-            products.unshift({ total, ...req.body });
+            const total = quantity * price;
+            products.unshift({ ...req.body, total, quantity });
         }
 
         const updatedBag = await Bag.findOneAndUpdate(
@@ -39,7 +40,7 @@ async function handler(req, res) {
         );
 
         await dbDisconnect();
-        return res.status(200).json({ bag: updatedBag });
+        return res.status(200).json(updatedBag);
     } catch (err) {
         return res.status(500).json({ error: err.message });
     }

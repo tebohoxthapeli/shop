@@ -19,10 +19,16 @@ import SearchBar from "./SearchBar";
 import { useDataLayerValue } from "../../../context/DataLayer";
 
 export default function NavBar() {
-    const [{ bag, user }] = useDataLayerValue();
+    const [{ bag, user }, dispatch] = useDataLayerValue();
 
     useEffect(() => {
+        console.log("user:", user);
         console.log("bag:", bag);
+    }, [bag, user]);
+
+    const [bagProductCount, setBagProductCount] = useState(0);
+    useEffect(() => {
+        bag && setBagProductCount(bag.products.length);
     }, [bag]);
 
     const [accountMenuAnchor, setAccountMenuAnchor] = useState(null);
@@ -48,7 +54,10 @@ export default function NavBar() {
         handleMoreMenuClose();
     };
 
-    const handleLogout = () => {};
+    const handleLogout = () => {
+        handleAccountMenuClose();
+        dispatch({ type: "USER_LOGOUT" });
+    };
 
     const renderAccountMenu = (
         <Menu
@@ -63,23 +72,23 @@ export default function NavBar() {
             {user ? (
                 <MenuItem onClick={handleLogout}>Logout</MenuItem>
             ) : (
-                <>
-                    <MenuItem onClick={handleAccountMenuClose}>
+                [
+                    <MenuItem onClick={handleAccountMenuClose} key={1}>
                         <NextLink href="/login" passHref>
                             <Link color="inherit" underline="none">
                                 Login
                             </Link>
                         </NextLink>
-                    </MenuItem>
+                    </MenuItem>,
 
-                    <MenuItem onClick={handleAccountMenuClose}>
+                    <MenuItem onClick={handleAccountMenuClose} key={2}>
                         <NextLink href="/register" passHref>
                             <Link color="inherit" underline="none">
                                 Register
                             </Link>
                         </NextLink>
-                    </MenuItem>
-                </>
+                    </MenuItem>,
+                ]
             )}
         </Menu>
     );
@@ -166,7 +175,7 @@ export default function NavBar() {
                                 ml: 2,
                             }}
                         >
-                            <Badge badgeContent={0} color="secondary" showZero>
+                            <Badge badgeContent={bagProductCount} color="secondary" showZero>
                                 <ShoppingBagIcon />
                             </Badge>
                         </IconButton>

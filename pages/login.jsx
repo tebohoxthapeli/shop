@@ -57,14 +57,27 @@ export default function Login() {
     const onSubmit = async (values) => {
         closeSnackbar();
 
-        try {
-            const { data } = await axios.post("/api/users/login", values);
-            dispatch({ type: "USER_LOGIN", payload: data });
-        } catch (err) {
-            enqueueSnackbar(getError(err), {
+        const { data: userInfo } = await axios.post("/api/users/login", values).catch((error) => {
+            enqueueSnackbar(getError(error), {
                 variant: "error",
             });
-        }
+        });
+        dispatch({ type: "USER_LOGIN", payload: userInfo });
+
+        const { data: bag } = await axios
+            .get("api/bag", {
+                headers: { Authorization: `Bearer ${userInfo.token}` },
+            })
+            .catch((error) => {
+                if (error.response) {
+                    console.log(error.response.data);
+                } else if (error.request) {
+                    console.log(error.request);
+                } else {
+                    console.log("Error:", error.message);
+                }
+            });
+        dispatch({ type: "BAG_UPDATE", payload: bag });
     };
 
     return (
