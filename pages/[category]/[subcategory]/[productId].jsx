@@ -1,7 +1,8 @@
 import axios from "axios";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSnackbar } from "notistack";
+import { useRouter } from "next/router";
 
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
@@ -11,6 +12,9 @@ import Typography from "@mui/material/Typography";
 import ToggleButton from "@mui/material/ToggleButton";
 import ShoppingBagIcon from "@mui/icons-material/ShoppingBag";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
+import Checkbox from "@mui/material/Checkbox";
+import FavoriteBorder from "@mui/icons-material/FavoriteBorder";
+import Favorite from "@mui/icons-material/Favorite";
 
 import ProductModel from "../../../models/Product";
 import Color from "../../../components/product/Color";
@@ -19,18 +23,18 @@ import { useDataLayerValue } from "../../../context/DataLayer";
 import Breadcrumbs from "../../../components/BreadCrumbs";
 import { dbConnect, dbDisconnect, convertBsonToObject } from "../../../utils/database";
 
-// change the API to account for the same product, but in a different size
-
 export default function Product({
-    product: { _id, productName, brand, price, image, sizes, colours }, // left out likes
+    product: { _id, productName, brand, price, image, sizes, colours, likes, likeCount },
 }) {
+    const router = useRouter();
     const [{ user }, dispatch] = useDataLayerValue();
     const { enqueueSnackbar } = useSnackbar();
 
     const [size, setSize] = useState(null);
     const [quantity, setQuantity] = useState(1);
     const [selectedColour, setSelectedColour] = useState(null);
-    const [isProductLiked, setIsProductLiked] = useState(null);
+    const [isProductLiked, setIsProductLiked] = useState(false);
+    const [_likeCount, setLikeCount] = useState(likeCount);
 
     const handleSizeChange = (e, newValue) => {
         setSize(newValue);
@@ -40,41 +44,28 @@ export default function Product({
         setSelectedColour(colour);
     };
 
-    const handleQuantityChange = (operator) => {
-        if (operator === "subtract") {
-            quantity > 1 && setQuantity(quantity - 1);
+    const handleIsProductLikedChange = async (e) => {
+        if (!user) {
+            router.push(`/login?redirect=${router.asPath}`);
         } else {
-            quantity < 10 && setQuantity(quantity + 1);
-        }
-    };
+            setIsProductLiked(e.target.checked);
 
-    const addToShoppingBag = async () => {
-        const product = {
-            _id,
-            productName,
-            brand,
-            size,
-            image,
-            price,
-            quantity,
-            colour: selectedColour,
-        };
+            if (isProductLiked) {
+                setLikeCount(_likeCount - 1);
+            } else {
+                setLikeCount(_likeCount + 1);
+            }
 
-        const errors = [];
-        !size && errors.push("Size is required.");
-        !selectedColour && errors.push("Colour is required.");
+            const { category, subcategory } = router.query;
 
-        if (errors.length > 0) {
-            errors.forEach((message) => {
-                enqueueSnackbar(message, {
-                    variant: "error",
-                });
-            });
-        } else {
-            const editBagResponse = await axios
-                .put("/api/bag/add", product, {
-                    headers: { Authorization: `Bearer ${user.token}` },
-                })
+            const likeProductResponse = await axios
+                .put(
+                    `/api/products/${category}/${subcategory}/${_id}/like`,
+                    {},
+                    {
+                        headers: { Authorization: `Bearer ${user.token}` },
+                    }
+                )
                 .catch((error) => {
                     if (error.response) {
                         console.log(error.response.data);
@@ -85,22 +76,77 @@ export default function Product({
                     }
                 });
 
-            if (editBagResponse) {
-                dispatch({ type: "BAG_UPDATE", payload: editBagResponse.data });
-
-                enqueueSnackbar("Product successfully added to bag", {
-                    variant: "success",
-                });
-
-                setSize(null);
-                setQuantity(1);
-                setSelectedColour(null);
-            }
+            if (likeProductResponse) console.log(likeProductResponse.data);
         }
     };
 
-    const handleProductLikedChange = (e, newValue) => {
-        setIsProductLiked(newValue);
+    useEffect(() => {
+        if (user) {
+            setIsProductLiked(likes.includes(user._id));
+        }
+    }, [user, likes]);
+
+    const handleQuantityChange = (operator) => {
+        if (operator === "subtract") {
+            quantity > 1 && setQuantity(quantity - 1);
+        } else {
+            quantity < 10 && setQuantity(quantity + 1);
+        }
+    };
+
+    const addToShoppingBag = async () => {
+        if (!user) {
+            router.push(`/login?redirect=${router.asPath}`);
+        } else {
+            const product = {
+                _id,
+                productName,
+                brand,
+                size,
+                image,
+                price,
+                quantity,
+                colour: selectedColour,
+            };
+
+            const errors = [];
+            !size && errors.push("Size is required.");
+            !selectedColour && errors.push("Colour is required.");
+
+            if (errors.length > 0) {
+                errors.forEach((message) => {
+                    enqueueSnackbar(message, {
+                        variant: "error",
+                    });
+                });
+            } else {
+                const addToBagResponse = await axios
+                    .put("/api/bag/add", product, {
+                        headers: { Authorization: `Bearer ${user.token}` },
+                    })
+                    .catch((error) => {
+                        if (error.response) {
+                            console.log(error.response.data);
+                        } else if (error.request) {
+                            console.log(error.request);
+                        } else {
+                            console.log("Error:", error.message);
+                        }
+                    });
+
+                if (addToBagResponse) {
+                    dispatch({ type: "BAG_UPDATE", payload: addToBagResponse.data });
+
+                    enqueueSnackbar("Product successfully added to bag", {
+                        variant: "success",
+                    });
+
+                    setSize(null);
+                    setQuantity(1);
+                    setSelectedColour(null);
+                }
+            }
+        }
     };
 
     return (
@@ -187,27 +233,31 @@ export default function Product({
                     <Divider />
 
                     <Box>
-                        <Typography variant="body2" sx={{ mb: 1 }}>
+                        <Typography variant="h6" sx={{ mb: 1 }}>
                             Do you like this product?:
                         </Typography>
 
-                        <ToggleButtonGroup
-                            color="primary"
-                            value={isProductLiked}
-                            exclusive
-                            onChange={handleProductLikedChange}
-                            size="small"
-                            sx={{ display: "flex", maxWidth: "15rem" }}
-                        >
-                            <ToggleButton value="y" sx={{ flex: 1 }}>
-                                Yes
-                            </ToggleButton>
+                        <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+                            <Checkbox
+                                icon={<FavoriteBorder />}
+                                checkedIcon={<Favorite />}
+                                onChange={handleIsProductLikedChange}
+                            />
 
-                            <ToggleButton value="n" sx={{ flex: 1 }}>
-                                No
-                            </ToggleButton>
-                        </ToggleButtonGroup>
+                            <Typography variant="body2" color="text.secondary">
+                                {isProductLiked
+                                    ? "You have liked this product"
+                                    : "You have not liked this product"}
+                            </Typography>
+                        </Box>
                     </Box>
+
+                    <Typography variant="overline">
+                        total number of likes for this product:{" "}
+                        <Typography variant="body1" component="span">
+                            {_likeCount}
+                        </Typography>
+                    </Typography>
                 </Stack>
             </Stack>
         </Box>

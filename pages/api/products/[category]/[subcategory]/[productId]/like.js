@@ -32,7 +32,7 @@ async function handler(req, res) {
         );
 
         await dbDisconnect();
-        return res.status(200).json({ product: updatedProduct });
+        return res.status(200).json(updatedProduct);
     } catch (err) {
         return res.status(500).json({ error: err.message });
     }

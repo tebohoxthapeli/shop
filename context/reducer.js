@@ -12,7 +12,7 @@ export function reducer(state, { type, payload }) {
             return { ...state, user: payload };
 
         case "USER_LOGOUT":
-            return { ...state, user: null };
+            return { ...state, user: null, bag: null };
 
         default:
             return state;

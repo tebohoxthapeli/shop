@@ -21,11 +21,6 @@ import { useDataLayerValue } from "../../../context/DataLayer";
 export default function NavBar() {
     const [{ bag, user }, dispatch] = useDataLayerValue();
 
-    useEffect(() => {
-        console.log("user:", user);
-        console.log("bag:", bag);
-    }, [bag, user]);
-
     const [bagProductCount, setBagProductCount] = useState(0);
     useEffect(() => {
         bag && setBagProductCount(bag.products.length);
@@ -60,37 +55,39 @@ export default function NavBar() {
     };
 
     const renderAccountMenu = (
-        <Menu
-            anchorEl={accountMenuAnchor}
-            anchorOrigin={{ vertical: "top", horizontal: "right" }}
-            transformOrigin={{ vertical: "top", horizontal: "right" }}
-            id="account-menu"
-            open={isAccountMenuOpen}
-            onClose={handleAccountMenuClose}
-            keepMounted
-        >
-            {user ? (
-                <MenuItem onClick={handleLogout}>Logout</MenuItem>
-            ) : (
-                [
-                    <MenuItem onClick={handleAccountMenuClose} key={1}>
-                        <NextLink href="/login" passHref>
-                            <Link color="inherit" underline="none">
-                                Login
-                            </Link>
-                        </NextLink>
-                    </MenuItem>,
+        <Box>
+            <Menu
+                anchorEl={accountMenuAnchor}
+                anchorOrigin={{ vertical: "top", horizontal: "right" }}
+                transformOrigin={{ vertical: "top", horizontal: "right" }}
+                id="account-menu"
+                open={isAccountMenuOpen}
+                onClose={handleAccountMenuClose}
+                keepMounted
+            >
+                {user ? (
+                    <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                ) : (
+                    [
+                        <MenuItem onClick={handleAccountMenuClose} key={1}>
+                            <NextLink href="/login" passHref>
+                                <Link color="inherit" underline="none">
+                                    Login
+                                </Link>
+                            </NextLink>
+                        </MenuItem>,
 
-                    <MenuItem onClick={handleAccountMenuClose} key={2}>
-                        <NextLink href="/register" passHref>
-                            <Link color="inherit" underline="none">
-                                Register
-                            </Link>
-                        </NextLink>
-                    </MenuItem>,
-                ]
-            )}
-        </Menu>
+                        <MenuItem onClick={handleAccountMenuClose} key={2}>
+                            <NextLink href="/register" passHref>
+                                <Link color="inherit" underline="none">
+                                    Register
+                                </Link>
+                            </NextLink>
+                        </MenuItem>,
+                    ]
+                )}
+            </Menu>
+        </Box>
     );
 
     const renderMoreMenu = (
@@ -165,33 +162,28 @@ export default function NavBar() {
 
                     {/* end icon buttons */}
 
-                    <Box sx={{ display: { xs: "none", sm: "flex" } }}>
+                    <Box sx={{ display: { xs: "none", sm: "flex" }, gap: 4 }}>
                         {/* shopping bag */}
 
-                        <IconButton
-                            size="large"
-                            color="inherit"
-                            sx={{
-                                ml: 2,
-                            }}
-                        >
+                        <IconButton size="large" color="inherit">
                             <Badge badgeContent={bagProductCount} color="secondary" showZero>
                                 <ShoppingBagIcon />
                             </Badge>
                         </IconButton>
 
-                        {/* user account */}
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                            {/* user account */}
 
-                        <IconButton
-                            size="large"
-                            onClick={handleAccountMenuOpen}
-                            color="inherit"
-                            sx={{
-                                ml: 2,
-                            }}
-                        >
-                            <AccountCircle />
-                        </IconButton>
+                            {user && <Typography variant="body1">{user.username}</Typography>}
+
+                            <IconButton
+                                size="large"
+                                onClick={handleAccountMenuOpen}
+                                color="inherit"
+                            >
+                                <AccountCircle />
+                            </IconButton>
+                        </Box>
                     </Box>
 
                     {/* show more */}

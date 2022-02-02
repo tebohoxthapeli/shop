@@ -8,7 +8,9 @@ import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 
 export default function BreadcrumbComponent() {
     const { asPath } = useRouter();
-    const pathWithoutQuery = asPath.split("?")[0];
+    let pathWithoutQuery = asPath.split("?")[0];
+    pathWithoutQuery = pathWithoutQuery.replaceAll("%20", " ");
+    pathWithoutQuery = pathWithoutQuery.replaceAll("%26", "&");
     const chunks = pathWithoutQuery.split("/").slice(1);
     chunks.unshift("Home");
 

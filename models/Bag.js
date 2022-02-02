@@ -9,15 +9,15 @@ const bagSchema = new Schema(
         },
         products: [
             {
-                _id: String,
+                _id: String, //*
                 productName: String,
                 brand: String,
-                size: String,
-                colour: String,
+                size: String, //*
+                colour: String, //*
                 image: String,
-                price: Number,
+                price: Number, //*
                 total: Number,
-                quantity: {
+                quantity: { //*
                     type: Number,
                     default: 1,
                 },

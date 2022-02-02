@@ -36,15 +36,24 @@ const validationSchema = object({
 
 export default function Login() {
     const router = useRouter();
+    const { redirect } = router.query;
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
     const [{ user }, dispatch] = useDataLayerValue();
 
+    const [showPassword, setShowPassword] = useState(false);
+
     useEffect(() => {
-        if (user) router.replace("/");
+        if (user) router.replace(redirect || "/");
         // eslint-disable-next-line
     }, [user]);
 
-    const [showPassword, setShowPassword] = useState(false);
+    useEffect(() => {
+        redirect &&
+            enqueueSnackbar("Please log in first.", {
+                variant: "info",
+                autoHideDuration: 10000,
+            });
+    }, [redirect, enqueueSnackbar]);
 
     const handleClickShowPassword = () => {
         setShowPassword(!showPassword);
