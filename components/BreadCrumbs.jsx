@@ -1,9 +1,10 @@
+import NextLink from "next/link";
 import { useRouter } from "next/router";
 
-import Breadcrumbs from "@mui/material/Breadcrumbs";
-import Typography from "@mui/material/Typography";
-import Link from "@mui/material/Link";
 import Box from "@mui/material/Box";
+import Link from "@mui/material/Link";
+import Typography from "@mui/material/Typography";
+import Breadcrumbs from "@mui/material/Breadcrumbs";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 
 export default function BreadcrumbComponent() {
@@ -26,9 +27,11 @@ export default function BreadcrumbComponent() {
 
         if (i1 < chunks.length - 1) {
             return (
-                <Link href={href} underline="hover" color="inherit" key={i1}>
-                    {c1}
-                </Link>
+                <NextLink href={href} passHref key={i1}>
+                    <Link underline="hover" color="inherit">
+                        {c1}
+                    </Link>
+                </NextLink>
             );
         } else {
             return (
@@ -40,7 +43,7 @@ export default function BreadcrumbComponent() {
     });
 
     return (
-        <Box sx={{ pb: 4 }}>
+        <Box sx={{ mb: 4 }}>
             <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />}>{bc}</Breadcrumbs>
         </Box>
     );

@@ -57,7 +57,7 @@ export default function HomeMain({ categories, categoryProducts }) {
 
             <Grid item xs={10}>
                 <Stack spacing={2}>
-                    <Typography variant="h3" gutterBottom>
+                    <Typography variant="h4" gutterBottom>
                         Categories
                     </Typography>
 

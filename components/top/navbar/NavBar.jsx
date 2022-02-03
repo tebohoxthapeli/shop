@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import NextLink from "next/link";
+import { useRouter } from "next/router";
 
 import Box from "@mui/material/Box";
 import Link from "@mui/material/Link";
@@ -14,20 +15,33 @@ import Typography from "@mui/material/Typography";
 import MoreIcon from "@mui/icons-material/MoreVert";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import ShoppingBagIcon from "@mui/icons-material/ShoppingBag";
+import Dialog from "@mui/material/Dialog";
+import Button from "@mui/material/Button";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
 
 import SearchBar from "./SearchBar";
 import { useDataLayerValue } from "../../../context/DataLayer";
 
 export default function NavBar() {
+    const router = useRouter();
     const [{ bag, user }, dispatch] = useDataLayerValue();
 
     const [bagProductCount, setBagProductCount] = useState(0);
-    useEffect(() => {
-        bag && setBagProductCount(bag.products.length);
-    }, [bag]);
-
     const [accountMenuAnchor, setAccountMenuAnchor] = useState(null);
     const [moreMenuAnchor, setMoreMenuAnchor] = useState(null);
+    const [openLogoutDialog, setOpenLogoutDialog] = useState(false);
+
+    const handleGoToBag = () => {
+        router.push(!user ? `/login?redirect=${router.asPath}` : `/bag?user=${user._id}`);
+    };
+
+    useEffect(() => {
+        if (bag) setBagProductCount(bag.products.length);
+        else setBagProductCount(0);
+    }, [bag]);
 
     const isAccountMenuOpen = Boolean(accountMenuAnchor);
     const isMoreMenuOpen = Boolean(moreMenuAnchor);
@@ -50,9 +64,40 @@ export default function NavBar() {
     };
 
     const handleLogout = () => {
+        setOpenLogoutDialog(true);
+    };
+
+    const handleLogoutAgree = () => {
+        setOpenLogoutDialog(false);
         handleAccountMenuClose();
         dispatch({ type: "USER_LOGOUT" });
     };
+
+    const handleLogoutDialogClose = () => {
+        setOpenLogoutDialog(false);
+        handleAccountMenuClose();
+    };
+
+    const renderLogoutDialog = (
+        <Dialog open={openLogoutDialog} onClose={handleLogoutDialogClose}>
+            <DialogTitle id="alert-dialog-title">{"Are you sure you want to log out?"}</DialogTitle>
+
+            <DialogContent>
+                <DialogContentText id="alert-dialog-description">
+                    Once logged out, you will not be able to access your account, add products to
+                    your shopping bag and make payments until you log in again.
+                </DialogContentText>
+            </DialogContent>
+
+            <DialogActions>
+                <Button onClick={handleLogoutDialogClose}>Disagree</Button>
+
+                <Button onClick={handleLogoutAgree} autoFocus>
+                    Agree
+                </Button>
+            </DialogActions>
+        </Dialog>
+    );
 
     const renderAccountMenu = (
         <Box>
@@ -66,13 +111,13 @@ export default function NavBar() {
                 keepMounted
             >
                 {user ? (
-                    <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                    <MenuItem onClick={handleLogout}>Log out</MenuItem>
                 ) : (
                     [
                         <MenuItem onClick={handleAccountMenuClose} key={1}>
                             <NextLink href="/login" passHref>
                                 <Link color="inherit" underline="none">
-                                    Login
+                                    Log in
                                 </Link>
                             </NextLink>
                         </MenuItem>,
@@ -138,22 +183,22 @@ export default function NavBar() {
                     </IconButton>
 
                     {/* name of store */}
-                    <Typography
-                        variant="h5"
-                        noWrap
-                        component="div"
-                        sx={{
-                            display: { xs: "none", sm: "flex" },
-                            ml: { sm: 0, md: 1 },
-                            mr: 4,
-                        }}
-                    >
-                        <NextLink href="/" passHref>
-                            <Link color="inherit" underline="none">
+                    <NextLink href="/" passHref>
+                        <Link color="inherit" underline="none">
+                            <Typography
+                                variant="h5"
+                                noWrap
+                                component="div"
+                                sx={{
+                                    display: { xs: "none", sm: "flex" },
+                                    ml: { sm: 0, md: 1 },
+                                    mr: 4,
+                                }}
+                            >
                                 FaucetLeak
-                            </Link>
-                        </NextLink>
-                    </Typography>
+                            </Typography>
+                        </Link>
+                    </NextLink>
 
                     {/* search bar */}
                     <SearchBar />
@@ -165,7 +210,7 @@ export default function NavBar() {
                     <Box sx={{ display: { xs: "none", sm: "flex" }, gap: 4 }}>
                         {/* shopping bag */}
 
-                        <IconButton size="large" color="inherit">
+                        <IconButton size="large" color="inherit" onClick={handleGoToBag}>
                             <Badge badgeContent={bagProductCount} color="secondary" showZero>
                                 <ShoppingBagIcon />
                             </Badge>
@@ -202,6 +247,7 @@ export default function NavBar() {
             </AppBar>
             {renderAccountMenu}
             {renderMoreMenu}
+            {renderLogoutDialog}
         </Box>
     );
 }

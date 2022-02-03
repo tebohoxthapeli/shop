@@ -5,7 +5,7 @@ import { dbConnect, dbDisconnect } from "../../../utils/database";
 async function handler(req, res) {
     if (req.method !== "PUT") return res.status(405).json({ error: "PUT method expected." });
 
-    const { _id, quantity, price, colour, size } = req.body;
+    const { _id, quantity, price } = req.body;
 
     const findCondition = {
         user: req.user._id,
@@ -18,7 +18,7 @@ async function handler(req, res) {
         let foundIndex;
 
         const foundProduct = products.find((product, index) => {
-            if (product._id === _id && product.colour === colour && product.size === size) {
+            if (product._id === _id) {
                 foundIndex = index;
                 product.quantity += quantity;
                 product.total = product.quantity * product.price;

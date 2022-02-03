@@ -8,6 +8,9 @@ export function reducer(state, { type, payload }) {
         case "BAG_UPDATE":
             return { ...state, bag: payload };
 
+        case "BAG_CLEAR":
+            return { ...state, bag: null };
+
         case "USER_LOGIN":
             return { ...state, user: payload };
 

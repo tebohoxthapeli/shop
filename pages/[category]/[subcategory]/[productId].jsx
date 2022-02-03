@@ -8,13 +8,13 @@ import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
 import Divider from "@mui/material/Divider";
+import Checkbox from "@mui/material/Checkbox";
+import Favorite from "@mui/icons-material/Favorite";
 import Typography from "@mui/material/Typography";
 import ToggleButton from "@mui/material/ToggleButton";
+import FavoriteBorder from "@mui/icons-material/FavoriteBorder";
 import ShoppingBagIcon from "@mui/icons-material/ShoppingBag";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
-import Checkbox from "@mui/material/Checkbox";
-import FavoriteBorder from "@mui/icons-material/FavoriteBorder";
-import Favorite from "@mui/icons-material/Favorite";
 
 import ProductModel from "../../../models/Product";
 import Color from "../../../components/product/Color";
@@ -43,6 +43,12 @@ export default function Product({
     const handleColourChange = (colour) => {
         setSelectedColour(colour);
     };
+
+    useEffect(() => {
+        if (user) {
+            setIsProductLiked(likes.includes(user._id));
+        }
+    }, [user, likes]);
 
     const handleIsProductLikedChange = async (e) => {
         if (!user) {
@@ -80,12 +86,6 @@ export default function Product({
         }
     };
 
-    useEffect(() => {
-        if (user) {
-            setIsProductLiked(likes.includes(user._id));
-        }
-    }, [user, likes]);
-
     const handleQuantityChange = (operator) => {
         if (operator === "subtract") {
             quantity > 1 && setQuantity(quantity - 1);
@@ -99,7 +99,7 @@ export default function Product({
             router.push(`/login?redirect=${router.asPath}`);
         } else {
             const product = {
-                _id,
+                _id: `${_id}-${size}-${selectedColour}`,
                 productName,
                 brand,
                 size,
@@ -242,6 +242,7 @@ export default function Product({
                                 icon={<FavoriteBorder />}
                                 checkedIcon={<Favorite />}
                                 onChange={handleIsProductLikedChange}
+                                checked={isProductLiked}
                             />
 
                             <Typography variant="body2" color="text.secondary">

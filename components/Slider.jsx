@@ -30,10 +30,10 @@ export default function Slider() {
                 height: "85vh",
 
                 "&:hover #left-arrow": {
-                    display: "block",
+                    display: "flex",
                 },
                 "&:hover #right-arrow": {
-                    display: "block",
+                    display: "flex",
                 },
             }}
         >
@@ -42,12 +42,16 @@ export default function Slider() {
                 color="primary"
                 onClick={() => handleClick("left")}
                 sx={{
+                    display: "none",
+                    width: "3rem",
+                    height: "3rem",
+                    alignItems: "center",
+                    justifyContent: "center",
                     position: "absolute",
                     top: "50%",
                     transform: "translateY(-50%)",
                     left: "2%",
                     zIndex: 20,
-                    display: "none",
                 }}
             >
                 <ArrowBackIcon />
@@ -114,12 +118,16 @@ export default function Slider() {
                 color="primary"
                 onClick={() => handleClick("right")}
                 sx={{
+                    display: "none",
+                    width: "3rem",
+                    height: "3rem",
+                    alignItems: "center",
+                    justifyContent: "center",
                     position: "absolute",
                     top: "50%",
                     transform: "translateY(-50%)",
                     right: "2%",
                     zIndex: 20,
-                    display: "none",
                 }}
             >
                 <ArrowForwardIcon />
