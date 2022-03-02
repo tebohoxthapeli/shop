@@ -31,7 +31,7 @@ export default function Product({
     useEffect(() => {
         if (user) {
             setIsProductLiked(likes.includes(user._id));
-        }
+        } else setIsProductLiked(false);
     }, [user, likes]);
 
     const handleIsProductLikedChange = async (e) => {
@@ -91,7 +91,7 @@ export default function Product({
             <CardActions>
                 <Checkbox
                     icon={<FavoriteBorder />}
-                    checkedIcon={<Favorite />}
+                    checkedIcon={<Favorite color="error" />}
                     onChange={handleIsProductLikedChange}
                     checked={isProductLiked}
                 />

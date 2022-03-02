@@ -3,7 +3,9 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useSnackbar } from "notistack";
 import { useRouter } from "next/router";
+import Cookies from "js-cookie";
 
+import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
@@ -47,8 +49,10 @@ export default function Product({
     useEffect(() => {
         if (user) {
             setIsProductLiked(likes.includes(user._id));
+        } else {
+            setIsProductLiked(false);
         }
-    }, [user, likes]);
+    }, [user, likes, likeCount]);
 
     const handleIsProductLikedChange = async (e) => {
         if (!user) {
@@ -136,6 +140,7 @@ export default function Product({
 
                 if (addToBagResponse) {
                     dispatch({ type: "BAG_UPDATE", payload: addToBagResponse.data });
+                    Cookies.set("bag", JSON.stringify(addToBagResponse.data));
 
                     enqueueSnackbar("Product successfully added to bag", {
                         variant: "success",
@@ -155,10 +160,10 @@ export default function Product({
 
             <Stack direction="row" spacing={4}>
                 <Box>
-                    <Image src={image} alt={image} height={700} width={500} />
+                    <Image src={image} alt={image} height={600} width={450} />
                 </Box>
 
-                <Stack spacing={5}>
+                <Stack spacing={4}>
                     <Box>
                         <Typography variant="h5">{productName}</Typography>
 
@@ -166,7 +171,7 @@ export default function Product({
                             {brand}
                         </Typography>
 
-                        <Typography variant="h3">R{price}</Typography>
+                        <Typography variant="h4">R{price}</Typography>
                     </Box>
 
                     <Box>
@@ -232,15 +237,15 @@ export default function Product({
 
                     <Divider />
 
-                    <Box>
-                        <Typography variant="h6" sx={{ mb: 1 }}>
+                    <Paper sx={{ p: 2 }}>
+                        <Typography variant="body1" sx={{ mb: 1 }}>
                             Do you like this product?:
                         </Typography>
 
                         <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
                             <Checkbox
                                 icon={<FavoriteBorder />}
-                                checkedIcon={<Favorite />}
+                                checkedIcon={<Favorite color="error" />}
                                 onChange={handleIsProductLikedChange}
                                 checked={isProductLiked}
                             />
@@ -251,7 +256,7 @@ export default function Product({
                                     : "You have not liked this product"}
                             </Typography>
                         </Box>
-                    </Box>
+                    </Paper>
 
                     <Typography variant="overline">
                         total number of likes for this product:{" "}

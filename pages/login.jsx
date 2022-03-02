@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useSnackbar } from "notistack";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
+import Cookies from "js-cookie";
 
 import Box from "@mui/material/Box";
 import Link from "@mui/material/Link";
@@ -72,6 +73,7 @@ export default function Login() {
             });
         });
         dispatch({ type: "USER_LOGIN", payload: userInfo });
+        Cookies.set("user", JSON.stringify(userInfo));
 
         const { data: bag } = await axios
             .get("api/bag", {
@@ -87,6 +89,7 @@ export default function Login() {
                 }
             });
         dispatch({ type: "BAG_UPDATE", payload: bag });
+        Cookies.set("bag", JSON.stringify(bag));
     };
 
     return (

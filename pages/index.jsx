@@ -28,7 +28,7 @@ export async function getStaticProps() {
                 categoryProducts: categories.map(({ name }) => {
                     return {
                         category: name,
-                        products: products.filter(({ category }) => category === name).slice(0, 3),
+                        products: products.filter(({ category }) => category === name).slice(0, 3), // keep only the first 3 products
                     };
                 }),
             },

@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useSnackbar } from "notistack";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
+import Cookies from "js-cookie";
 
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
@@ -32,17 +33,19 @@ const initialValues = {
 
 const validationSchema = object({
     email: string().email("Invalid email address format entered.").required("Enter email address."),
-    password: string()
-        .required("Enter password.")
-        .matches(
-            /(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[^a-zA-Z0-9\s]).*/,
-            "Uppercase letter, lowercase letter, number and special character (eg. $#@!*...) required."
-        )
-        .min(8, "Password should be at least ${min} characters long."),
+
+    password: string().required("Enter password."),
+    // .matches(
+    //     /(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[^a-zA-Z0-9\s]).*/,
+    //     "Uppercase letter, lowercase letter, number and special character (eg. $#@!*...) required."
+    // )
+    // .min(8, "Password should be at least ${min} characters long."),
+
     username: string()
         .required("Enter username.")
         .matches(/^\p{L}+([' -]\p{L}+.?)*(, \p{L}+.?)*$/u, "Invalid username format entered.")
         .min(2, "Username should be at least ${min} characters long."),
+
     termsAndConditions: boolean().isTrue(
         "To continue using this service, accept the terms and conditions."
     ),
@@ -97,8 +100,12 @@ export default function Register() {
                     }
                 });
 
-            getBagResponse && dispatch({ type: "BAG_UPDATE", payload: getBagResponse.data });
-            dispatch({ type: "USER_LOGIN", payload: userInfo });
+            if (getBagResponse) {
+                dispatch({ type: "BAG_UPDATE", payload: getBagResponse.data });
+                Cookies.set("bag", JSON.stringify(getBagResponse.data));
+                dispatch({ type: "USER_LOGIN", payload: userInfo });
+                Cookies.set("user", JSON.stringify(userInfo));
+            }
         }
     };
 
@@ -140,6 +147,7 @@ export default function Register() {
                                                 {...field}
                                                 type="text"
                                                 label="Username"
+                                                spellCheck={false}
                                                 error={touched && error ? true : false}
                                                 helperText={touched && error}
                                                 inputProps={{ maxLength: 50 }}

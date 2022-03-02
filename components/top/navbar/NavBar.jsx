@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
+import Cookies from "js-cookie";
 
 import Box from "@mui/material/Box";
 import Link from "@mui/material/Link";
@@ -71,6 +72,8 @@ export default function NavBar() {
         setOpenLogoutDialog(false);
         handleAccountMenuClose();
         dispatch({ type: "USER_LOGOUT" });
+        Cookies.remove("user");
+        Cookies.remove("bag");
     };
 
     const handleLogoutDialogClose = () => {
@@ -110,27 +113,37 @@ export default function NavBar() {
                 onClose={handleAccountMenuClose}
                 keepMounted
             >
-                {user ? (
-                    <MenuItem onClick={handleLogout}>Log out</MenuItem>
-                ) : (
-                    [
-                        <MenuItem onClick={handleAccountMenuClose} key={1}>
-                            <NextLink href="/login" passHref>
-                                <Link color="inherit" underline="none">
-                                    Log in
-                                </Link>
-                            </NextLink>
-                        </MenuItem>,
+                {user
+                    ? [
+                          <MenuItem onClick={handleLogout} key={1}>
+                              Log out
+                          </MenuItem>,
 
-                        <MenuItem onClick={handleAccountMenuClose} key={2}>
-                            <NextLink href="/register" passHref>
-                                <Link color="inherit" underline="none">
-                                    Register
-                                </Link>
-                            </NextLink>
-                        </MenuItem>,
-                    ]
-                )}
+                          <MenuItem onClick={handleAccountMenuClose} key={2}>
+                              <NextLink href="/profile" passHref>
+                                  <Link color="inherit" underline="none">
+                                      Profile
+                                  </Link>
+                              </NextLink>
+                          </MenuItem>,
+                      ]
+                    : [
+                          <MenuItem onClick={handleAccountMenuClose} key={1}>
+                              <NextLink href="/login" passHref>
+                                  <Link color="inherit" underline="none">
+                                      Log in
+                                  </Link>
+                              </NextLink>
+                          </MenuItem>,
+
+                          <MenuItem onClick={handleAccountMenuClose} key={2}>
+                              <NextLink href="/register" passHref>
+                                  <Link color="inherit" underline="none">
+                                      Register
+                                  </Link>
+                              </NextLink>
+                          </MenuItem>,
+                      ]}
             </Menu>
         </Box>
     );

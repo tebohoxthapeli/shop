@@ -1,6 +1,8 @@
 import axios from "axios";
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
+import { useRouter } from "next/router";
+import Cookies from "js-cookie";
 
 import Box from "@mui/material/Box";
 import Table from "@mui/material/Table";
@@ -15,24 +17,49 @@ import Typography from "@mui/material/Typography";
 import TableContainer from "@mui/material/TableContainer";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 
-// import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 
-// import BagModel from "../models/Bag";
 import { useDataLayerValue } from "../context/DataLayer";
 import Breadcrumbs from "../components/BreadCrumbs";
-// import { dbConnect, dbDisconnect, convertBsonToObject } from "../utils/database";
 
 const quantityOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
 export default function ShoppingBag() {
+    const router = useRouter();
     const [{ user, bag }, dispatch] = useDataLayerValue();
-    const [age, setAge] = useState("");
 
-    const handleChange = (event) => {
-        setAge(event.target.value);
+    useEffect(() => {
+        if (!bag) {
+            router.replace("/");
+        }
+        // eslint-disable-next-line
+    }, [bag]);
+
+    const handleQuantityChange = async (e, _id) => {
+        const editBagResponse = await axios
+            .put(
+                `/api/bag/edit?productId=${_id}`,
+                { quantity: e.target.value },
+                {
+                    headers: { Authorization: `Bearer ${user.token}` },
+                }
+            )
+            .catch((error) => {
+                if (error.response) {
+                    console.log(error.response.data);
+                } else if (error.request) {
+                    console.log(error.request);
+                } else {
+                    console.log("Error:", error.message);
+                }
+            });
+
+        if (editBagResponse) {
+            dispatch({ type: "BAG_UPDATE", payload: editBagResponse.data });
+            Cookies.set("bag", JSON.stringify(editBagResponse.data));
+        }
     };
 
     const handleRemoveProduct = async (_id) => {
@@ -56,6 +83,7 @@ export default function ShoppingBag() {
 
         if (removeProductResponse) {
             dispatch({ type: "BAG_UPDATE", payload: removeProductResponse.data });
+            Cookies.set("bag", JSON.stringify(removeProductResponse.data));
         }
     };
 
@@ -63,14 +91,14 @@ export default function ShoppingBag() {
         <Box sx={{ p: 4 }}>
             <Breadcrumbs />
 
-            {bag.products.length > 0 ? (
+            <Typography variant="h4" sx={{ mb: 4 }}>
+                Shopping bag
+            </Typography>
+
+            {bag?.products.length > 0 ? (
                 <>
                     <Box sx={{ display: "flex", gap: 10 }}>
                         <Box sx={{ flex: 8 }}>
-                            <Typography variant="h4" sx={{ mb: 4 }}>
-                                Shopping bag
-                            </Typography>
-
                             <TableContainer component={Paper}>
                                 <Table sx={{ minWidth: 650 }}>
                                     <TableHead>
@@ -84,7 +112,7 @@ export default function ShoppingBag() {
                                     </TableHead>
 
                                     <TableBody>
-                                        {bag.products.map(
+                                        {bag?.products.map(
                                             ({
                                                 _id,
                                                 image,
@@ -97,12 +125,12 @@ export default function ShoppingBag() {
                                                 price,
                                             }) => (
                                                 <TableRow
-                                                    key={_id}
                                                     sx={{
                                                         "&:last-child td, &:last-child th": {
                                                             border: 0,
                                                         },
                                                     }}
+                                                    key={_id}
                                                 >
                                                     <TableCell component="th" scope="row">
                                                         {/* Parent box -> 2 children */}
@@ -155,17 +183,12 @@ export default function ShoppingBag() {
                                                     </TableCell>
 
                                                     <TableCell align="right" sx={{ width: "5rem" }}>
-                                                        {/* {quantity} */}
                                                         <FormControl variant="standard" fullWidth>
-                                                            {/* <InputLabel id="demo-simple-select-label">
-                                                                Age
-                                                            </InputLabel> */}
                                                             <Select
-                                                                labelId="demo-simple-select-label"
-                                                                id="demo-simple-select"
-                                                                value={age}
-                                                                label="Age"
-                                                                onChange={handleChange}
+                                                                value={quantity}
+                                                                onChange={(e) => {
+                                                                    handleQuantityChange(e, _id);
+                                                                }}
                                                             >
                                                                 {quantityOptions.map((option) => (
                                                                     <MenuItem
@@ -221,7 +244,12 @@ export default function ShoppingBag() {
                                 }}
                             >
                                 <Typography variant="h6"> Subtotal</Typography>
-                                <Typography variant="h4"> R90</Typography>
+                                <Typography variant="h4">
+                                    {bag?.products.reduce(
+                                        (subtotal, { total }) => subtotal + total,
+                                        0
+                                    )}
+                                </Typography>
                             </Box>
 
                             <Button variant="contained" sx={{ width: "100%" }}>
@@ -236,24 +264,3 @@ export default function ShoppingBag() {
         </Box>
     );
 }
-
-// export async function getServerSideProps({ query: { user } }) {
-//     try {
-//         await dbConnect();
-//         const bag = convertBsonToObject(await BagModel.findOne({ user, ordered: false }));
-//         await dbDisconnect();
-
-//         if (!bag) {
-//             return {
-//                 notFound: true,
-//             };
-//         }
-
-//         return {
-//             props: { bag },
-//         };
-//     } catch (error) {
-//         console.log("Error:", error.message);
-//         return;
-//     }
-// }

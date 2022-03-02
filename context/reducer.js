@@ -1,15 +1,14 @@
+import Cookies from "js-cookie";
+
 export const initialState = {
-    user: null,
-    bag: null,
+    user: Cookies.get("user") ? JSON.parse(Cookies.get("user")) : null,
+    bag: Cookies.get("bag") ? JSON.parse(Cookies.get("bag")) : null,
 };
 
 export function reducer(state, { type, payload }) {
     switch (type) {
         case "BAG_UPDATE":
             return { ...state, bag: payload };
-
-        case "BAG_CLEAR":
-            return { ...state, bag: null };
 
         case "USER_LOGIN":
             return { ...state, user: payload };
