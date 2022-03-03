@@ -1,33 +1,42 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { useDataLayerValue } from "../context/DataLayer";
-import axios from "axios";
-import { useSnackbar } from "notistack";
 import Cookies from "js-cookie";
-import { object, string } from "yup";
-import { Formik, Form, Field } from "formik";
-import { getError } from "../utils/error";
-import Paper from "@mui/material/Paper";
+import axios from "axios";
+
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
+import DeleteIcon from "@mui/icons-material/Delete";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import Dialog from "@mui/material/Dialog";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import BreadCrumbs from "../components/BreadCrumbs";
+import IconButton from "@mui/material/IconButton";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import InputAdornment from "@mui/material/InputAdornment";
 
-const validationSchema = object({
-    email: string().email("Invalid email address format entered.").required("Enter email address."),
-    username: string()
-        .required("Enter username.")
-        .matches(/^\p{L}+([' -]\p{L}+.?)*(, \p{L}+.?)*$/u, "Invalid username format entered.")
-        .min(2, "Username should be at least ${min} characters long."),
-});
+import Main from "../components/profile/Main";
+import Password from "../components/profile/Password";
+import { useDataLayerValue } from "../context/DataLayer";
+import BreadCrumbs from "../components/BreadCrumbs";
+import { getError } from "../utils/error";
+import { useSnackbar } from "notistack";
 
 export default function Profile() {
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
-    const router = useRouter();
     const [{ user }, dispatch] = useDataLayerValue();
-    const [initialValues, setInitialValues] = useState({});
+    const router = useRouter();
+    const [initialValues, setInitialValues] = useState({
+        username: "",
+        email: "",
+    });
+    const [openDeleteAccountDialog, setOpenDeleteAccountDialog] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [password, setPassword] = useState("");
 
     useEffect(() => {
         if (!user) {
@@ -43,10 +52,23 @@ export default function Profile() {
         // eslint-disable-next-line
     }, [user]);
 
-    const onSubmit = async (values) => {
+    const handleDeleteAccount = () => {
+        setOpenDeleteAccountDialog(true);
+        setPassword("");
+    };
+
+    const handleDeleteAccountDialogClose = () => {
+        setOpenDeleteAccountDialog(false);
+    };
+
+    const handleDeleteAccountAgree = async () => {
         closeSnackbar();
-        const editProfileResponse = await axios
-            .put(`/api/users/${user._id}/edit`, values, {
+
+        const deleteAccountResponse = await axios
+            .delete(`/api/users/${user._id}/delete`, {
+                data: {
+                    password,
+                },
                 headers: { Authorization: `Bearer ${user.token}` },
             })
             .catch((error) => {
@@ -55,99 +77,97 @@ export default function Profile() {
                 });
             });
 
-        if (editProfileResponse) {
-            enqueueSnackbar("Profile details changed successfully.", { variant: "success" });
-            dispatch({ type: "USER_LOGIN", payload: editProfileResponse.data });
-            Cookies.set("user", JSON.stringify(editProfileResponse.data));
+        if (deleteAccountResponse && deleteAccountResponse.data) {
+            setPassword("");
+            setOpenDeleteAccountDialog(false);
+
+            dispatch({ type: "USER_LOGOUT" });
+            Cookies.remove("user");
+            Cookies.remove("bag");
         }
     };
+
+    const handleShowPassword = () => {
+        setShowPassword(!showPassword);
+    };
+
+    const handleMouseDownPassword = (event) => {
+        event.preventDefault();
+    };
+
+    const renderDeleteAccountDialog = (
+        <Dialog open={openDeleteAccountDialog} onClose={handleDeleteAccountDialogClose}>
+            <DialogTitle>Delete Account</DialogTitle>
+
+            <DialogContent>
+                <DialogContentText>
+                    <Typography variant="h6" component="span" color="error">
+                        WARNING:{" "}
+                    </Typography>
+                    Deleting your account will clear your shopping bag and remove your profile
+                    permanently from our system. Continue only if you feel you are sure.
+                    <br />
+                    <Typography component="span" variant="body2" color="white" sx={{ mt: 2 }}>
+                        To continue, enter your password.
+                    </Typography>
+                </DialogContentText>
+
+                <TextField
+                    autoFocus
+                    margin="dense"
+                    label="Password"
+                    type={showPassword ? "text" : "password"}
+                    fullWidth
+                    variant="standard"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    InputProps={{
+                        endAdornment: (
+                            <InputAdornment position="end">
+                                <IconButton
+                                    onClick={handleShowPassword}
+                                    onMouseDown={handleMouseDownPassword}
+                                >
+                                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                                </IconButton>
+                            </InputAdornment>
+                        ),
+                        maxLength: 50,
+                    }}
+                />
+            </DialogContent>
+
+            <DialogActions>
+                <Button onClick={handleDeleteAccountDialogClose} autoFocus>
+                    Cancel
+                </Button>
+
+                <Button onClick={handleDeleteAccountAgree} disabled={!password}>
+                    Continue
+                </Button>
+            </DialogActions>
+        </Dialog>
+    );
 
     return (
         <Box sx={{ p: 4 }}>
             <BreadCrumbs />
 
-            <Box
-                sx={{
-                    display: "flex",
-                    justifyContent: "center",
-                }}
-            >
-                <Paper
-                    sx={{
-                        p: 4,
-                        width: "40%",
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                    }}
+            <Stack spacing={3} sx={{ alignItems: "center" }}>
+                <Main initialValues={initialValues} user={user} />
+                <Password user={user} />
+
+                <Button
+                    onClick={handleDeleteAccount}
+                    variant="contained"
+                    startIcon={<DeleteIcon />}
+                    color="error"
+                    sx={{ minWidth: "20rem" }}
                 >
-                    <Typography variant="h4" sx={{ mb: 4 }}>
-                        Edit your profile
-                    </Typography>
-
-                    <Formik
-                        initialValues={initialValues}
-                        validationSchema={validationSchema}
-                        onSubmit={onSubmit}
-                        enableReinitialize
-                    >
-                        {(formikProps) => {
-                            const { isValid, dirty } = formikProps;
-
-                            return (
-                                <Stack component={Form} spacing={3} sx={{ width: "100%" }}>
-                                    <Field name="username">
-                                        {(fieldProps) => {
-                                            const { field, meta } = fieldProps;
-                                            const { error, touched } = meta;
-
-                                            return (
-                                                <TextField
-                                                    {...field}
-                                                    type="text"
-                                                    label="Username"
-                                                    spellCheck={false}
-                                                    autoComplete="off"
-                                                    error={touched && error ? true : false}
-                                                    helperText={touched && error}
-                                                    inputProps={{ maxLength: 50 }}
-                                                />
-                                            );
-                                        }}
-                                    </Field>
-
-                                    <Field name="email">
-                                        {(fieldProps) => {
-                                            const { field, meta } = fieldProps;
-                                            const { error, touched } = meta;
-
-                                            return (
-                                                <TextField
-                                                    {...field}
-                                                    type="email"
-                                                    label="Email Address"
-                                                    autoComplete="off"
-                                                    error={touched && error ? true : false}
-                                                    helperText={touched && error}
-                                                    inputProps={{ maxLength: 100 }}
-                                                />
-                                            );
-                                        }}
-                                    </Field>
-
-                                    <Button
-                                        variant="contained"
-                                        type="submit"
-                                        disabled={!(dirty && isValid)}
-                                    >
-                                        Confirm profile details
-                                    </Button>
-                                </Stack>
-                            );
-                        }}
-                    </Formik>
-                </Paper>
-            </Box>
+                    Delete account
+                </Button>
+            </Stack>
+            {renderDeleteAccountDialog}
         </Box>
     );
 }

@@ -93,11 +93,11 @@ export default function NavBar() {
             </DialogContent>
 
             <DialogActions>
-                <Button onClick={handleLogoutDialogClose}>Disagree</Button>
-
-                <Button onClick={handleLogoutAgree} autoFocus>
-                    Agree
+                <Button onClick={handleLogoutDialogClose} autoFocus>
+                    Cancel
                 </Button>
+
+                <Button onClick={handleLogoutAgree}>Continue</Button>
             </DialogActions>
         </Dialog>
     );
@@ -201,7 +201,6 @@ export default function NavBar() {
                             <Typography
                                 variant="h5"
                                 noWrap
-                                component="div"
                                 sx={{
                                     display: { xs: "none", sm: "flex" },
                                     ml: { sm: 0, md: 1 },
@@ -232,7 +231,7 @@ export default function NavBar() {
                         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                             {/* user account */}
 
-                            {user && <Typography variant="body1">{user.username}</Typography>}
+                            {user && <Typography variant="h6">{user.username}</Typography>}
 
                             <IconButton
                                 size="large"

@@ -117,6 +117,7 @@ export default function Register() {
                     alt="illustration"
                     layout="fill"
                     objectFit="contain"
+                    priority
                 />
             </Box>
 

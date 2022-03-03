@@ -1,6 +1,6 @@
-import { dbConnect, dbDisconnect } from "../../../../utils/database";
-import { verifyToken, verifyId } from "../../../../utils/auth";
 import User from "../../../../models/User";
+import { verifyToken, verifyId, signToken } from "../../../../utils/auth";
+import { dbConnect, dbDisconnect, convertBsonToObject } from "../../../../utils/database";
 import { compareSync, hashSync } from "bcryptjs";
 
 async function handler(req, res) {
@@ -18,16 +18,18 @@ async function handler(req, res) {
             return res.status(401).json({ error: "Incorrect password entered. Try again." });
         }
 
-        const updatedUser = await User.findByIdAndUpdate(
+        let updatedUser = await User.findByIdAndUpdate(
             userId,
             {
                 $set: { password: hashSync(newPassword) },
             },
             { new: true }
         );
-        
+
         await dbDisconnect();
-        return res.status(200).json({ user: updatedUser });
+
+        updatedUser = convertBsonToObject(updatedUser);
+        return res.status(200).json({ token: signToken(updatedUser), ...updatedUser });
     } catch (err) {
         return res.status(500).json({ error: err.message });
     }
