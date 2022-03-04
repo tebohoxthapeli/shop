@@ -114,6 +114,7 @@ export default function Profile() {
 
                 <TextField
                     autoFocus
+                    autoComplete="off"
                     margin="dense"
                     label="Password"
                     type={showPassword ? "text" : "password"}

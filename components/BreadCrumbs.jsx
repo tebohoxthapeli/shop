@@ -12,8 +12,6 @@ export default function BreadcrumbComponent() {
     let pathWithoutQuery = asPath.split("?")[0];
     pathWithoutQuery = pathWithoutQuery.replace(/%20/g, " ");
     pathWithoutQuery = pathWithoutQuery.replace(/%26/g, "&");
-    // pathWithoutQuery = pathWithoutQuery.replaceAll("%20", " ");
-    // pathWithoutQuery = pathWithoutQuery.replaceAll("%26", "&");
     const chunks = pathWithoutQuery.split("/").slice(1);
     chunks.unshift("Home");
 

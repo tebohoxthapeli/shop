@@ -103,7 +103,7 @@ export default function Login() {
         >
             <Box sx={{ flex: 1, position: "relative" }}>
                 <Image
-                    src="/illustrations/DrawKit-Vector-Illustration-ecommerce-09.svg"
+                    src="images/illustrations/DrawKit-Vector-Illustration-ecommerce-09.svg"
                     alt="llustration"
                     layout="fill"
                     objectFit="contain"
@@ -133,6 +133,7 @@ export default function Login() {
                                                 error={touched && error ? true : false}
                                                 helperText={touched && error}
                                                 inputProps={{ maxLength: 100 }}
+                                                autoFocus
                                             />
                                         );
                                     }}
@@ -143,6 +144,7 @@ export default function Login() {
                                         return (
                                             <TextField
                                                 {...field}
+                                                autoComplete="off"
                                                 type={showPassword ? "text" : "password"}
                                                 label="Password"
                                                 error={touched && error ? true : false}

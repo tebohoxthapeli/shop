@@ -163,7 +163,7 @@ export default function NavBar() {
         >
             <MenuItem>
                 <IconButton size="large" color="inherit">
-                    <Badge badgeContent={0} color="error" showZero>
+                    <Badge badgeContent={0} color="error">
                         <ShoppingBagIcon />
                     </Badge>
                 </IconButton>
@@ -223,7 +223,7 @@ export default function NavBar() {
                         {/* shopping bag */}
 
                         <IconButton size="large" color="inherit" onClick={handleGoToBag}>
-                            <Badge badgeContent={bagProductCount} color="secondary" showZero>
+                            <Badge badgeContent={bagProductCount} color="secondary">
                                 <ShoppingBagIcon />
                             </Badge>
                         </IconButton>

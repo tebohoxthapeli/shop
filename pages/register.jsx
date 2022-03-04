@@ -114,7 +114,7 @@ export default function Register() {
         <Box sx={{ display: "flex", height: "100vh", px: "2rem", gap: "2rem" }}>
             <Box sx={{ flex: 1, position: "relative" }}>
                 <Image
-                    src="/illustrations/DrawKit-Vector-Illustration-ecommerce-01.svg"
+                    src="images/illustrations/DrawKit-Vector-Illustration-ecommerce-01.svg"
                     alt="illustration"
                     layout="fill"
                     objectFit="contain"
@@ -153,6 +153,8 @@ export default function Register() {
                                                 error={touched && error ? true : false}
                                                 helperText={touched && error}
                                                 inputProps={{ maxLength: 50 }}
+                                                autoFocus
+                                                autoComplete="off"
                                             />
                                         );
                                     }}
@@ -168,6 +170,7 @@ export default function Register() {
                                                 error={touched && error ? true : false}
                                                 helperText={touched && error}
                                                 inputProps={{ maxLength: 100 }}
+                                                autoComplete="off"
                                             />
                                         );
                                     }}
@@ -178,6 +181,7 @@ export default function Register() {
                                         return (
                                             <TextField
                                                 {...field}
+                                                autoComplete="off"
                                                 type={showPassword ? "text" : "password"}
                                                 label="Password"
                                                 error={touched && error ? true : false}

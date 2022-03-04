@@ -83,6 +83,7 @@ export default function Main({ initialValues, user }) {
                                             error={touched && error ? true : false}
                                             helperText={touched && error}
                                             inputProps={{ maxLength: 50 }}
+                                            autoFocus
                                         />
                                     );
                                 }}

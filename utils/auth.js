@@ -7,8 +7,6 @@ export function signToken(user) {
 export function verifyToken(handler) {
     return async (req, res) => {
         const { authorization } = req.headers;
-        console.log("authorization:", authorization);
-        console.log("body:", req.body);
 
         if (!authorization) {
             return res.status(401).json({ error: "Please log in." });

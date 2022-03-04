@@ -26,10 +26,10 @@ import Breadcrumbs from "../../../components/BreadCrumbs";
 import { dbConnect, dbDisconnect, convertBsonToObject } from "../../../utils/database";
 
 export default function Product({
-    product: { _id, productName, brand, price, image, sizes, colours, likes, likeCount },
+    product: { _id: productId, productName, brand, price, image, sizes, colours, likes, likeCount },
 }) {
     const router = useRouter();
-    const [{ user }, dispatch] = useDataLayerValue();
+    const [{ user, likedProducts }, dispatch] = useDataLayerValue();
     const { enqueueSnackbar } = useSnackbar();
 
     const [size, setSize] = useState(null);
@@ -46,13 +46,40 @@ export default function Product({
         setSelectedColour(colour);
     };
 
+    // const checkedViaProps = Cookies.get("checkedViaProps") ? JSON.parse(Cookies.get("checkedViaProps")) : null;
+    /*
+        if (user) {
+            if (checkedViaProps) {
+                if (likedProducts.has(productId)) {
+                    // *** some logic ***
+                }
+            } else {
+                if (likes.includes(user._id)) {
+                    // *** some logic here ***
+                }
+            }
+        }
+    
+    */
+
+    // or try to use [revalidate]
+
     useEffect(() => {
         if (user) {
-            setIsProductLiked(likes.includes(user._id));
-        } else {
-            setIsProductLiked(false);
+            if (likes.includes(user._id)) {
+                setIsProductLiked(true);
+                dispatch({ type: "ADD_PRODUCT_TO_LIKED", payload: productId });
+            }
         }
-    }, [user, likes, likeCount]);
+    }, [user, likes, productId, dispatch]);
+
+    useEffect(() => {
+        if (isProductLiked) {
+            dispatch({ type: "ADD_PRODUCT_TO_LIKED", payload: productId });
+        } else {
+            dispatch({ type: "REMOVE_PRODUCT_FROM_LIKED", payload: productId });
+        }
+    }, [isProductLiked, dispatch, productId]);
 
     const handleIsProductLikedChange = async (e) => {
         if (!user) {
@@ -70,7 +97,7 @@ export default function Product({
 
             const likeProductResponse = await axios
                 .put(
-                    `/api/products/${category}/${subcategory}/${_id}/like`,
+                    `/api/products/${category}/${subcategory}/${productId}/like`,
                     {},
                     {
                         headers: { Authorization: `Bearer ${user.token}` },
@@ -103,7 +130,7 @@ export default function Product({
             router.push(`/login?redirect=${router.asPath}`);
         } else {
             const product = {
-                _id: `${_id}-${size}-${selectedColour}`,
+                _id: `${productId}-${size}-${selectedColour}`,
                 productName,
                 brand,
                 size,
@@ -159,8 +186,8 @@ export default function Product({
             <Breadcrumbs />
 
             <Stack direction="row" spacing={4}>
-                <Box>
-                    <Image src={image} alt={image} height={600} width={450} />
+                <Box sx={{ position: "relative", height: "600px", width: "450px" }}>
+                    <Image src={image} alt={image} layout="fill" objectFit="cover" />
                 </Box>
 
                 <Stack spacing={4}>
