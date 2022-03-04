@@ -20,12 +20,12 @@ import { getError } from "../../utils/error";
 
 const validationSchema = object({
     oldPassword: string().required("Enter your current password."),
-    newPassword: string().required("Enter a new password."),
-    // .matches(
-    //     /(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[^a-zA-Z0-9\s]).*/,
-    //     "Uppercase letter, lowercase letter, number and special character (eg. $#@!*...) required."
-    // )
-    // .min(8, "Password should be at least ${min} characters long."),
+    newPassword: string().required("Enter a new password.")
+    .matches(
+        /(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[^a-zA-Z0-9\s]).*/,
+        "Uppercase letter, lowercase letter, number and special character (eg. $#@!*...) required."
+    )
+    .min(8, "Password should be at least ${min} characters long."),
 });
 
 const initialValues = {

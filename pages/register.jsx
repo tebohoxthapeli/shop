@@ -34,12 +34,13 @@ const initialValues = {
 const validationSchema = object({
     email: string().email("Invalid email address format entered.").required("Enter email address."),
 
-    password: string().required("Enter password."),
-    // .matches(
-    //     /(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[^a-zA-Z0-9\s]).*/,
-    //     "Uppercase letter, lowercase letter, number and special character (eg. $#@!*...) required."
-    // )
-    // .min(8, "Password should be at least ${min} characters long."),
+    password: string()
+        .required("Enter password.")
+        .matches(
+            /(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[^a-zA-Z0-9\s]).*/,
+            "Uppercase letter, lowercase letter, number and special character (eg. $#@!*...) required."
+        )
+        .min(8, "Password should be at least ${min} characters long."),
 
     username: string()
         .required("Enter username.")
