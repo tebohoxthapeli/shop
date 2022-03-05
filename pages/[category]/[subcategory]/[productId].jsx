@@ -29,7 +29,7 @@ export default function Product({
     product: { _id: productId, productName, brand, price, image, sizes, colours, likes, likeCount },
 }) {
     const router = useRouter();
-    const [{ user, likedProducts }, dispatch] = useDataLayerValue();
+    const [{ user }, dispatch] = useDataLayerValue(); //excluded likedProducts
     const { enqueueSnackbar } = useSnackbar();
 
     const [size, setSize] = useState(null);
@@ -68,18 +68,18 @@ export default function Product({
         if (user) {
             if (likes.includes(user._id)) {
                 setIsProductLiked(true);
-                dispatch({ type: "ADD_PRODUCT_TO_LIKED", payload: productId });
+                // dispatch({ type: "ADD_PRODUCT_TO_LIKED", payload: productId });
             }
         }
-    }, [user, likes, productId, dispatch]);
+    }, [user, likes]);
 
-    useEffect(() => {
-        if (isProductLiked) {
-            dispatch({ type: "ADD_PRODUCT_TO_LIKED", payload: productId });
-        } else {
-            dispatch({ type: "REMOVE_PRODUCT_FROM_LIKED", payload: productId });
-        }
-    }, [isProductLiked, dispatch, productId]);
+    // useEffect(() => {
+    //     if (isProductLiked) {
+    //         dispatch({ type: "ADD_PRODUCT_TO_LIKED", payload: productId });
+    //     } else {
+    //         dispatch({ type: "REMOVE_PRODUCT_FROM_LIKED", payload: productId });
+    //     }
+    // }, [isProductLiked, dispatch, productId]);
 
     const handleIsProductLikedChange = async (e) => {
         if (!user) {
@@ -323,6 +323,7 @@ export async function getStaticProps({ params: { productId } }) {
 
         return {
             props: { product },
+            revalidate: 10,
         };
     } catch (err) {
         console.log("Error:", err.message);

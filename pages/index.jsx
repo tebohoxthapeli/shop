@@ -32,6 +32,7 @@ export async function getStaticProps() {
                     };
                 }),
             },
+            revalidate: 10,
         };
     } catch (err) {
         console.log("Error:", err.message);
