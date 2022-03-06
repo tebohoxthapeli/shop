@@ -26,8 +26,10 @@ export default function Product({
     likes,
     likeCount,
 }) {
-    const [{ user, likedProducts, hasCheckedProductComponentLikes }, dispatch] =
-        useDataLayerValue();
+    const [
+        { user, likedProducts, hasCheckedProductComponentLikes, hasCheckedProductPageLikes },
+        dispatch,
+    ] = useDataLayerValue();
 
     const router = useRouter();
     const [isProductLiked, setIsProductLiked] = useState(false);
@@ -37,8 +39,7 @@ export default function Product({
     useEffect(() => {
         if (user) {
             // if has checked the likes prop:
-
-            if (hasCheckedProductComponentLikes) {
+            if (hasCheckedProductComponentLikes || hasCheckedProductPageLikes) {
                 if (likedProducts.has(productId)) {
                     setIsProductLiked(true);
                 }
@@ -50,26 +51,35 @@ export default function Product({
                 }
             }
         }
-    }, [user, dispatch, hasCheckedProductComponentLikes, likedProducts, likes, productId]);
+    }, [
+        user,
+        dispatch,
+        hasCheckedProductPageLikes,
+        hasCheckedProductComponentLikes,
+        likedProducts,
+        likes,
+        productId,
+    ]);
 
-    // use effect for when isProductLiked changes. (when you like/dislike a product):
-
-    useEffect(() => {
-        if (user) {
-            if (isProductLiked) {
-                dispatch({ type: "ADD_PRODUCT_TO_LIKED", payload: productId });
-            } else {
-                dispatch({ type: "REMOVE_PRODUCT_FROM_LIKED", payload: productId });
-            }
+    const updateLikedProducts = () => {
+        if (isProductLiked) {
+            dispatch({ type: "REMOVE_PRODUCT_FROM_LIKED", payload: productId });
+        } else {
+            dispatch({ type: "ADD_PRODUCT_TO_LIKED", payload: productId });
         }
-    }, [isProductLiked, dispatch, user, productId]);
+    };
 
     const updateLikeCount = () => {
         const cookieName = `${productId}-likeCount`;
         const likeCountCookie = Cookies.get(cookieName);
 
+        // changing this product's liked state should store its like count in a cookie
+        // here we're trying to determine if this has already happened since logging in
+
         if (likeCountCookie) {
             const parsedCookie = JSON.parse(likeCountCookie);
+
+            // if the product is already liked, then we're trying to unlike it
 
             if (isProductLiked) {
                 Cookies.set(cookieName, JSON.stringify(parsedCookie - 1));
@@ -90,7 +100,9 @@ export default function Product({
             router.push(`/login?redirect=${router.asPath}`);
         } else {
             setIsProductLiked(e.target.checked);
+            updateLikedProducts();
             updateLikeCount();
+
             await axios
                 .put(
                     `/api/products/${category}/${subcategory}/${productId}/like`,

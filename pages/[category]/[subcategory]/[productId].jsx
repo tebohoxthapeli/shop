@@ -28,8 +28,12 @@ import { dbConnect, dbDisconnect, convertBsonToObject } from "../../../utils/dat
 export default function Product({
     product: { _id: productId, productName, brand, price, image, sizes, colours, likes, likeCount },
 }) {
+    const [
+        { user, hasCheckedProductPageLikes, likedProducts, hasCheckedProductComponentLikes },
+        dispatch,
+    ] = useDataLayerValue();
+
     const router = useRouter();
-    const [{ user, hasCheckedProductPageLikes, likedProducts }, dispatch] = useDataLayerValue(); //excluded likedProducts
     const { enqueueSnackbar } = useSnackbar();
 
     const [size, setSize] = useState(null);
@@ -47,7 +51,6 @@ export default function Product({
     };
 
     // on initial like count and user change state use effect:
-
     useEffect(() => {
         if (user) {
             const likeCountCookie = Cookies.get(`${productId}-likeCount`);
@@ -62,10 +65,10 @@ export default function Product({
     }, [productId, user]);
 
     // main on initial render use effect:
-
     useEffect(() => {
         if (user) {
-            if (hasCheckedProductPageLikes) {
+            // if has checked the likes prop:
+            if (hasCheckedProductComponentLikes || hasCheckedProductPageLikes) {
                 if (likedProducts.has(productId)) {
                     setIsProductLiked(true);
                 }
@@ -77,25 +80,30 @@ export default function Product({
                 }
             }
         }
-    }, [user, likes, dispatch, productId, hasCheckedProductPageLikes, likedProducts]);
+    }, [
+        user,
+        dispatch,
+        likedProducts,
+        hasCheckedProductPageLikes,
+        hasCheckedProductComponentLikes,
+        likes,
+        productId,
+    ]);
 
-    // when the product is liked use effect:
-
-    useEffect(() => {
-        if (user) {
-            if (isProductLiked) {
-                dispatch({ type: "ADD_PRODUCT_TO_LIKED", payload: productId });
-            } else {
-                dispatch({ type: "REMOVE_PRODUCT_FROM_LIKED", payload: productId });
-            }
+    const updateLikedProducts = () => {
+        if (isProductLiked) {
+            dispatch({ type: "REMOVE_PRODUCT_FROM_LIKED", payload: productId });
+        } else {
+            dispatch({ type: "ADD_PRODUCT_TO_LIKED", payload: productId });
         }
-    }, [isProductLiked, dispatch, productId, user]);
+    };
 
     const handleIsProductLikedChange = async (e) => {
         if (!user) {
             router.push(`/login?redirect=${router.asPath}`);
         } else {
             setIsProductLiked(e.target.checked);
+            updateLikedProducts();
 
             if (isProductLiked) {
                 setLikeCount((prev) => {
