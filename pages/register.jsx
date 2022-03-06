@@ -114,7 +114,7 @@ export default function Register() {
         <Box sx={{ display: "flex", height: "100vh", px: "2rem", gap: "2rem" }}>
             <Box sx={{ flex: 1, position: "relative" }}>
                 <Image
-                    src="images/illustrations/DrawKit-Vector-Illustration-ecommerce-01.svg"
+                    src="/images/illustrations/DrawKit-Vector-Illustration-ecommerce-01.svg"
                     alt="illustration"
                     layout="fill"
                     objectFit="contain"

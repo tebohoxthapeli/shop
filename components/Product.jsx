@@ -2,6 +2,7 @@ import NextLink from "next/link";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
+import Cookies from "js-cookie";
 
 import Card from "@mui/material/Card";
 import Checkbox from "@mui/material/Checkbox";
@@ -21,28 +22,78 @@ export default function Product({
     image,
     category,
     subcategory,
-    _id,
+    _id: productId,
     likes,
+    likeCount,
 }) {
+    const [{ user, likedProducts, hasCheckedProductComponentLikes }, dispatch] =
+        useDataLayerValue();
+
     const router = useRouter();
-    const [{ user }] = useDataLayerValue();
     const [isProductLiked, setIsProductLiked] = useState(false);
+
+    // main on initial render use effect:
 
     useEffect(() => {
         if (user) {
-            setIsProductLiked(likes.includes(user._id));
-        } else setIsProductLiked(false);
-    }, [user, likes]);
+            // if has checked the likes prop:
+
+            if (hasCheckedProductComponentLikes) {
+                if (likedProducts.has(productId)) {
+                    setIsProductLiked(true);
+                }
+            } else {
+                if (likes.includes(user._id)) {
+                    setIsProductLiked(true);
+                    dispatch({ type: "ADD_PRODUCT_TO_LIKED", payload: productId });
+                    dispatch({ type: "SET_CHECKED_PRODUCT_COMPONENT_LIKES" });
+                }
+            }
+        }
+    }, [user, dispatch, hasCheckedProductComponentLikes, likedProducts, likes, productId]);
+
+    // use effect for when isProductLiked changes. (when you like/dislike a product):
+
+    useEffect(() => {
+        if (user) {
+            if (isProductLiked) {
+                dispatch({ type: "ADD_PRODUCT_TO_LIKED", payload: productId });
+            } else {
+                dispatch({ type: "REMOVE_PRODUCT_FROM_LIKED", payload: productId });
+            }
+        }
+    }, [isProductLiked, dispatch, user, productId]);
+
+    const updateLikeCount = () => {
+        const cookieName = `${productId}-likeCount`;
+        const likeCountCookie = Cookies.get(cookieName);
+
+        if (likeCountCookie) {
+            const parsedCookie = JSON.parse(likeCountCookie);
+
+            if (isProductLiked) {
+                Cookies.set(cookieName, JSON.stringify(parsedCookie - 1));
+            } else {
+                Cookies.set(cookieName, JSON.stringify(parsedCookie + 1));
+            }
+        } else {
+            if (isProductLiked) {
+                Cookies.set(cookieName, JSON.stringify(likeCount - 1));
+            } else {
+                Cookies.set(cookieName, JSON.stringify(likeCount + 1));
+            }
+        }
+    };
 
     const handleIsProductLikedChange = async (e) => {
         if (!user) {
             router.push(`/login?redirect=${router.asPath}`);
         } else {
             setIsProductLiked(e.target.checked);
-
+            updateLikeCount();
             await axios
                 .put(
-                    `/api/products/${category}/${subcategory}/${_id}/like`,
+                    `/api/products/${category}/${subcategory}/${productId}/like`,
                     {},
                     {
                         headers: { Authorization: `Bearer ${user.token}` },
@@ -62,7 +113,7 @@ export default function Product({
 
     return (
         <Card sx={{ maxWidth: 345, flex: 1 }}>
-            <NextLink href={`/${category}/${subcategory}/${_id}`} passHref>
+            <NextLink href={`/${category}/${subcategory}/${productId}`} passHref>
                 <CardActionArea>
                     <CardMedia
                         component="img"

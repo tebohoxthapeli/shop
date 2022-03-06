@@ -29,7 +29,7 @@ export default function Product({
     product: { _id: productId, productName, brand, price, image, sizes, colours, likes, likeCount },
 }) {
     const router = useRouter();
-    const [{ user }, dispatch] = useDataLayerValue(); //excluded likedProducts
+    const [{ user, hasCheckedProductPageLikes, likedProducts }, dispatch] = useDataLayerValue(); //excluded likedProducts
     const { enqueueSnackbar } = useSnackbar();
 
     const [size, setSize] = useState(null);
@@ -46,40 +46,50 @@ export default function Product({
         setSelectedColour(colour);
     };
 
-    // const checkedViaProps = Cookies.get("checkedViaProps") ? JSON.parse(Cookies.get("checkedViaProps")) : null;
-    /*
-        if (user) {
-            if (checkedViaProps) {
-                if (likedProducts.has(productId)) {
-                    // *** some logic ***
-                }
-            } else {
-                if (likes.includes(user._id)) {
-                    // *** some logic here ***
-                }
-            }
-        }
-    
-    */
-
-    // or try to use [revalidate]
+    // on initial like count and user change state use effect:
 
     useEffect(() => {
         if (user) {
-            if (likes.includes(user._id)) {
-                setIsProductLiked(true);
-                // dispatch({ type: "ADD_PRODUCT_TO_LIKED", payload: productId });
+            const likeCountCookie = Cookies.get(`${productId}-likeCount`);
+
+            if (likeCountCookie) {
+                setLikeCount(JSON.parse(likeCountCookie));
+            }
+        } else {
+            // when user logs out:
+            Cookies.remove(`${productId}-likeCount`);
+        }
+    }, [productId, user]);
+
+    // main on initial render use effect:
+
+    useEffect(() => {
+        if (user) {
+            if (hasCheckedProductPageLikes) {
+                if (likedProducts.has(productId)) {
+                    setIsProductLiked(true);
+                }
+            } else {
+                if (likes.includes(user._id)) {
+                    setIsProductLiked(true);
+                    dispatch({ type: "ADD_PRODUCT_TO_LIKED", payload: productId });
+                    dispatch({ type: "SET_CHECKED_PRODUCT_PAGE_LIKES" });
+                }
             }
         }
-    }, [user, likes]);
+    }, [user, likes, dispatch, productId, hasCheckedProductPageLikes, likedProducts]);
 
-    // useEffect(() => {
-    //     if (isProductLiked) {
-    //         dispatch({ type: "ADD_PRODUCT_TO_LIKED", payload: productId });
-    //     } else {
-    //         dispatch({ type: "REMOVE_PRODUCT_FROM_LIKED", payload: productId });
-    //     }
-    // }, [isProductLiked, dispatch, productId]);
+    // when the product is liked use effect:
+
+    useEffect(() => {
+        if (user) {
+            if (isProductLiked) {
+                dispatch({ type: "ADD_PRODUCT_TO_LIKED", payload: productId });
+            } else {
+                dispatch({ type: "REMOVE_PRODUCT_FROM_LIKED", payload: productId });
+            }
+        }
+    }, [isProductLiked, dispatch, productId, user]);
 
     const handleIsProductLikedChange = async (e) => {
         if (!user) {
@@ -88,14 +98,22 @@ export default function Product({
             setIsProductLiked(e.target.checked);
 
             if (isProductLiked) {
-                setLikeCount(_likeCount - 1);
+                setLikeCount((prev) => {
+                    const newLikeCount = --prev;
+                    Cookies.set(`${productId}-likeCount`, JSON.stringify(newLikeCount));
+                    return newLikeCount;
+                });
             } else {
-                setLikeCount(_likeCount + 1);
+                setLikeCount((prev) => {
+                    const newLikeCount = ++prev;
+                    Cookies.set(`${productId}-likeCount`, JSON.stringify(newLikeCount));
+                    return newLikeCount;
+                });
             }
 
             const { category, subcategory } = router.query;
 
-            const likeProductResponse = await axios
+            await axios
                 .put(
                     `/api/products/${category}/${subcategory}/${productId}/like`,
                     {},
@@ -112,8 +130,6 @@ export default function Product({
                         console.log("Error:", error.message);
                     }
                 });
-
-            if (likeProductResponse) console.log(likeProductResponse.data);
         }
     };
 

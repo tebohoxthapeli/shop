@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
-import Cookies from "js-cookie";
 
 import Box from "@mui/material/Box";
 import Link from "@mui/material/Link";
@@ -72,8 +71,6 @@ export default function NavBar() {
         setOpenLogoutDialog(false);
         handleAccountMenuClose();
         dispatch({ type: "USER_LOGOUT" });
-        Cookies.remove("user");
-        Cookies.remove("bag");
     };
 
     const handleLogoutDialogClose = () => {

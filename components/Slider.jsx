@@ -69,7 +69,7 @@ export default function Slider() {
                 {sliderItems.map((item) => (
                     <div className={styles.slide} key={item.id}>
                         <div className={styles.imgContainer}>
-                            <Image src={item.img} alt="carousel image" height={600} width={900} />
+                            <Image src={item.img} alt="carousel image" height={600} width={900} priority />
                         </div>
 
                         <div className={styles.infoContainer}>

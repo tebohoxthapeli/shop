@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import Cookies from "js-cookie";
 import axios from "axios";
 
 import Box from "@mui/material/Box";
@@ -80,10 +79,7 @@ export default function Profile() {
         if (deleteAccountResponse && deleteAccountResponse.data) {
             setPassword("");
             setOpenDeleteAccountDialog(false);
-
             dispatch({ type: "USER_LOGOUT" });
-            Cookies.remove("user");
-            Cookies.remove("bag");
         }
     };
 
