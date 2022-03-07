@@ -3,12 +3,14 @@ import { useSnackbar } from "notistack";
 import Cookies from "js-cookie";
 import { object, string } from "yup";
 import { Formik, Form, Field } from "formik";
+import { useState } from "react";
 
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
+import CircularProgress from "@mui/material/CircularProgress";
 
 import { getError } from "../../utils/error";
 import { useDataLayerValue } from "../../context/DataLayer";
@@ -25,7 +27,10 @@ export default function Main({ initialValues, user }) {
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
     const dispatch = useDataLayerValue()[1];
 
+    const [loading, setLoading] = useState(false);
+
     const onSubmit = async (values) => {
+        setLoading(true);
         closeSnackbar();
 
         const editProfileResponse = await axios
@@ -33,17 +38,27 @@ export default function Main({ initialValues, user }) {
                 headers: { Authorization: `Bearer ${user.token}` },
             })
             .catch((error) => {
+                setLoading(false);
+
                 enqueueSnackbar(getError(error), {
                     variant: "error",
                 });
             });
 
         if (editProfileResponse) {
+            setLoading(false);
+
             enqueueSnackbar("Profile details changed successfully.", { variant: "success" });
             dispatch({ type: "USER_LOGIN", payload: editProfileResponse.data });
             Cookies.set("user", JSON.stringify(editProfileResponse.data));
         }
     };
+
+    let renderSpinner = null;
+    if (loading) {
+        renderSpinner = <CircularProgress sx={{ position: "absolute", top: "50%", left: "50%" }} />;
+    }
+
     return (
         <Stack
             component={Paper}
@@ -51,8 +66,10 @@ export default function Main({ initialValues, user }) {
                 p: 4,
                 minWidth: "40rem",
                 alignItems: "center",
+                position: "relative",
             }}
         >
+            {renderSpinner}
             <Typography variant="h5" sx={{ mb: 4 }}>
                 Change your username and email address
             </Typography>

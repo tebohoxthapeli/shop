@@ -16,6 +16,7 @@ import Visibility from "@mui/icons-material/Visibility";
 import Typography from "@mui/material/Typography";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import InputAdornment from "@mui/material/InputAdornment";
+import CircularProgress from "@mui/material/CircularProgress";
 
 import { object, string } from "yup";
 import { Formik, Form, Field } from "formik";
@@ -42,6 +43,7 @@ export default function Login() {
     const [{ user }, dispatch] = useDataLayerValue();
 
     const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (user) router.replace(redirect || "/");
@@ -66,31 +68,52 @@ export default function Login() {
 
     const onSubmit = async (values) => {
         closeSnackbar();
+        setLoading(true);
 
-        const { data: userInfo } = await axios.post("/api/users/login", values).catch((error) => {
+        const loginUserResponse = await axios.post("/api/users/login", values).catch((error) => {
+            setLoading(false);
+
             enqueueSnackbar(getError(error), {
                 variant: "error",
             });
         });
-        dispatch({ type: "USER_LOGIN", payload: userInfo });
-        Cookies.set("user", JSON.stringify(userInfo));
 
-        const { data: bag } = await axios
-            .get("api/bag", {
-                headers: { Authorization: `Bearer ${userInfo.token}` },
-            })
-            .catch((error) => {
-                if (error.response) {
-                    console.log(error.response.data);
-                } else if (error.request) {
-                    console.log(error.request);
-                } else {
-                    console.log("Error:", error.message);
-                }
-            });
-        dispatch({ type: "BAG_UPDATE", payload: bag });
-        Cookies.set("bag", JSON.stringify(bag));
+        if (loginUserResponse) {
+            const userInfo = loginUserResponse.data;
+
+            const getUserBagResponse = await axios
+                .get("api/bag", {
+                    headers: { Authorization: `Bearer ${userInfo.token}` },
+                })
+                .catch((error) => {
+                    setLoading(false);
+
+                    if (error.response) {
+                        console.log(error.response.data);
+                    } else if (error.request) {
+                        console.log(error.request);
+                    } else {
+                        console.log("Error:", error.message);
+                    }
+                });
+
+            if (getUserBagResponse) {
+                setLoading(false);
+                const bag = getUserBagResponse.data;
+
+                dispatch({ type: "BAG_UPDATE", payload: bag });
+                Cookies.set("bag", JSON.stringify(bag));
+
+                dispatch({ type: "USER_LOGIN", payload: userInfo });
+                Cookies.set("user", JSON.stringify(userInfo));
+            }
+        }
     };
+
+    let renderSpinner = null;
+    if (loading) {
+        renderSpinner = <CircularProgress sx={{ position: "absolute", top: "50%", left: "50%" }} />;
+    }
 
     return (
         <Box
@@ -103,7 +126,7 @@ export default function Login() {
         >
             <Box sx={{ flex: 1, position: "relative" }}>
                 <Image
-                    src="/images/illustrations/DrawKit-Vector-Illustration-ecommerce-09.png"
+                    src="/images/illustrations/DrawKit-Vector-Illustration-ecommerce-09.svg"
                     alt="llustration"
                     layout="fill"
                     objectFit="contain"
@@ -198,6 +221,7 @@ export default function Login() {
                     <Button variant="outlined">{"Don't have an account? Create one"}</Button>
                 </NextLink>
             </Stack>
+            {renderSpinner}
         </Box>
     );
 }

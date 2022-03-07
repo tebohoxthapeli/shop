@@ -14,6 +14,7 @@ import IconButton from "@mui/material/IconButton";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import InputAdornment from "@mui/material/InputAdornment";
+import CircularProgress from "@mui/material/CircularProgress";
 
 import { useDataLayerValue } from "../../context/DataLayer";
 import { getError } from "../../utils/error";
@@ -40,6 +41,7 @@ export default function Password({ user }) {
 
     const [showOldPassword, setShowOldPassword] = useState(false);
     const [showNewPassword, setShowNewPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const handleShowOldPassword = () => {
         setShowOldPassword(!showOldPassword);
@@ -49,7 +51,12 @@ export default function Password({ user }) {
         setShowNewPassword(!showNewPassword);
     };
 
+    const handleMouseDownPassword = (event) => {
+        event.preventDefault();
+    };
+
     const onSubmit = async (values) => {
+        setLoading(true);
         closeSnackbar();
 
         const editPasswordResponse = await axios
@@ -57,12 +64,16 @@ export default function Password({ user }) {
                 headers: { Authorization: `Bearer ${user.token}` },
             })
             .catch((error) => {
+                setLoading(false);
+
                 enqueueSnackbar(getError(error), {
                     variant: "error",
                 });
             });
 
         if (editPasswordResponse) {
+            setLoading(false);
+
             enqueueSnackbar("Password changed successfully.", {
                 variant: "success",
             });
@@ -76,8 +87,22 @@ export default function Password({ user }) {
         }
     };
 
+    let renderSpinner = null;
+    if (loading) {
+        renderSpinner = (
+            <CircularProgress
+                color="warning"
+                sx={{ position: "absolute", top: "50%", left: "50%" }}
+            />
+        );
+    }
+
     return (
-        <Stack as={Paper} sx={{ p: 4, minWidth: "40rem", alignItems: "center" }}>
+        <Stack
+            as={Paper}
+            sx={{ p: 4, minWidth: "40rem", alignItems: "center", position: "relative" }}
+        >
+            {renderSpinner}
             <Typography variant="h5" sx={{ mb: 4 }}>
                 Change your password
             </Typography>
@@ -105,7 +130,10 @@ export default function Password({ user }) {
                                             InputProps={{
                                                 endAdornment: (
                                                     <InputAdornment position="end">
-                                                        <IconButton onClick={handleShowOldPassword}>
+                                                        <IconButton
+                                                            onMouseDown={handleMouseDownPassword}
+                                                            onClick={handleShowOldPassword}
+                                                        >
                                                             {showOldPassword ? (
                                                                 <VisibilityOff />
                                                             ) : (
@@ -135,7 +163,10 @@ export default function Password({ user }) {
                                             InputProps={{
                                                 endAdornment: (
                                                     <InputAdornment position="end">
-                                                        <IconButton onClick={handleShowNewPassword}>
+                                                        <IconButton
+                                                            onMouseDown={handleMouseDownPassword}
+                                                            onClick={handleShowNewPassword}
+                                                        >
                                                             {showNewPassword ? (
                                                                 <VisibilityOff />
                                                             ) : (

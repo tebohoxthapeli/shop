@@ -1,6 +1,6 @@
 import axios from "axios";
 import Image from "next/image";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Cookies from "js-cookie";
 
@@ -16,6 +16,7 @@ import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import TableContainer from "@mui/material/TableContainer";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
+import CircularProgress from "@mui/material/CircularProgress";
 
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
@@ -28,7 +29,9 @@ const quantityOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
 export default function ShoppingBag() {
     const router = useRouter();
+
     const [{ user, bag }, dispatch] = useDataLayerValue();
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (!bag) {
@@ -38,6 +41,8 @@ export default function ShoppingBag() {
     }, [bag]);
 
     const handleQuantityChange = async (e, _id) => {
+        setLoading(true);
+
         const editBagResponse = await axios
             .put(
                 `/api/bag/edit?productId=${_id}`,
@@ -47,6 +52,8 @@ export default function ShoppingBag() {
                 }
             )
             .catch((error) => {
+                setLoading(false);
+
                 if (error.response) {
                     console.log(error.response.data);
                 } else if (error.request) {
@@ -57,12 +64,16 @@ export default function ShoppingBag() {
             });
 
         if (editBagResponse) {
+            setLoading(false);
+
             dispatch({ type: "BAG_UPDATE", payload: editBagResponse.data });
             Cookies.set("bag", JSON.stringify(editBagResponse.data));
         }
     };
 
     const handleRemoveProduct = async (_id) => {
+        setLoading(true);
+
         const removeProductResponse = await axios
             .put(
                 `/api/bag/remove?productId=${_id}`,
@@ -72,6 +83,8 @@ export default function ShoppingBag() {
                 }
             )
             .catch((error) => {
+                setLoading(false);
+
                 if (error.response) {
                     console.log(error.response.data);
                 } else if (error.request) {
@@ -82,10 +95,17 @@ export default function ShoppingBag() {
             });
 
         if (removeProductResponse) {
+            setLoading(false);
+
             dispatch({ type: "BAG_UPDATE", payload: removeProductResponse.data });
             Cookies.set("bag", JSON.stringify(removeProductResponse.data));
         }
     };
+
+    let renderSpinner = null;
+    if (loading) {
+        renderSpinner = <CircularProgress sx={{ position: "absolute", top: "50%", left: "50%" }} />;
+    }
 
     let renderBag = null;
     if (bag) {
@@ -263,6 +283,7 @@ export default function ShoppingBag() {
             </Typography>
 
             {renderBag}
+            {renderSpinner}
         </Box>
     );
 }

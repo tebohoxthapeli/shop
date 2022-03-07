@@ -17,6 +17,7 @@ import Typography from "@mui/material/Typography";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import InputAdornment from "@mui/material/InputAdornment";
 import FormControlLabel from "@mui/material/FormControlLabel";
+import CircularProgress from "@mui/material/CircularProgress";
 
 import { object, string, boolean } from "yup";
 import { Formik, Form, Field, ErrorMessage } from "formik";
@@ -55,14 +56,15 @@ const validationSchema = object({
 export default function Register() {
     const router = useRouter();
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+
     const [{ user }, dispatch] = useDataLayerValue();
+    const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (user) router.replace("/");
         // eslint-disable-next-line
     }, [user]);
-
-    const [showPassword, setShowPassword] = useState(false);
 
     const handleClickShowPassword = () => {
         setShowPassword(!showPassword);
@@ -73,12 +75,15 @@ export default function Register() {
     };
 
     const onSubmit = async (values) => {
+        setLoading(true);
         closeSnackbar();
         delete values.termsAndConditions;
 
         const registerUserResponse = await axios
             .post("/api/users/register", values)
             .catch((error) => {
+                setLoading(false);
+
                 enqueueSnackbar(getError(error), {
                     variant: "error",
                 });
@@ -92,6 +97,8 @@ export default function Register() {
                     headers: { Authorization: `Bearer ${userInfo.token}` },
                 })
                 .catch((error) => {
+                    setLoading(false);
+
                     if (error.response) {
                         console.log(error.response.data);
                     } else if (error.request) {
@@ -102,19 +109,27 @@ export default function Register() {
                 });
 
             if (getBagResponse) {
+                setLoading(false);
+
                 dispatch({ type: "BAG_UPDATE", payload: getBagResponse.data });
                 Cookies.set("bag", JSON.stringify(getBagResponse.data));
+
                 dispatch({ type: "USER_LOGIN", payload: userInfo });
                 Cookies.set("user", JSON.stringify(userInfo));
             }
         }
     };
 
+    let renderSpinner = null;
+    if (loading) {
+        renderSpinner = <CircularProgress sx={{ position: "absolute", top: "50%", left: "50%" }} />;
+    }
+
     return (
         <Box sx={{ display: "flex", height: "100vh", px: "2rem", gap: "2rem" }}>
             <Box sx={{ flex: 1, position: "relative" }}>
                 <Image
-                    src="/images/illustrations/DrawKit-Vector-Illustration-ecommerce-01.png"
+                    src="/images/illustrations/DrawKit-Vector-Illustration-ecommerce-01.svg"
                     alt="illustration"
                     layout="fill"
                     objectFit="contain"
@@ -252,6 +267,7 @@ export default function Register() {
                     <Button variant="outlined">Already have an account? Login</Button>
                 </NextLink>
             </Stack>
+            {renderSpinner}
         </Box>
     );
 }

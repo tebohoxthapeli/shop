@@ -20,6 +20,7 @@ import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import AccordionSummary from "@mui/material/AccordionSummary";
+import CircularProgress from "@mui/material/CircularProgress";
 
 const sortByOptions = [
     { label: "Newest", value: "newest" },
@@ -66,7 +67,11 @@ export default function Sidebar({ category, allBrands }) {
         brand: query.brand ? (typeof query.brand === "string" ? [query.brand] : query.brand) : [],
     });
 
+    const [loading, setLoading] = useState(false);
+
     useEffect(() => {
+        // setLoading(false);
+
         const urlObject = {
             query: {
                 category: query.category,
@@ -89,10 +94,12 @@ export default function Sidebar({ category, allBrands }) {
     }, [query.subcategory, query.category, filters]);
 
     const handleFiltersChange = (e) => {
+        setLoading(true);
         setFilters({ ...filters, [e.target.name]: e.target.value });
     };
 
     const handleBrandChange = (brand) => {
+        setLoading(true);
         const brandArray = filters.brand;
 
         if (brandArray.find((item) => item === brand)) {
@@ -105,6 +112,25 @@ export default function Sidebar({ category, allBrands }) {
             setFilters({ ...filters, brand: brandArray });
         }
     };
+
+    let renderSpinner = null;
+    if (loading) {
+        renderSpinner = (
+            <Box
+                sx={{
+                    width: "100vw",
+                    height: "100vh",
+                    position: "absolute",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    zIndex: 10,
+                }}
+            >
+                <CircularProgress />;
+            </Box>
+        );
+    }
 
     let renderBrandsFormGroup = (
         <FormGroup>
@@ -132,6 +158,7 @@ export default function Sidebar({ category, allBrands }) {
 
     return (
         <Box>
+            {renderSpinner}
             <Typography variant="h6" gutterBottom>
                 Filter
             </Typography>

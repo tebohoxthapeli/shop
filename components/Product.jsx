@@ -50,6 +50,8 @@ export default function Product({
                     dispatch({ type: "SET_CHECKED_PRODUCT_COMPONENT_LIKES" });
                 }
             }
+        } else {
+            setIsProductLiked(false);
         }
     }, [
         user,

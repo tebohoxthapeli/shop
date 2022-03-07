@@ -17,6 +17,7 @@ import IconButton from "@mui/material/IconButton";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import InputAdornment from "@mui/material/InputAdornment";
+import CircularProgress from "@mui/material/CircularProgress";
 
 import Main from "../components/profile/Main";
 import Password from "../components/profile/Password";
@@ -27,8 +28,9 @@ import { useSnackbar } from "notistack";
 
 export default function Profile() {
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
-    const [{ user }, dispatch] = useDataLayerValue();
     const router = useRouter();
+
+    const [{ user }, dispatch] = useDataLayerValue();
     const [initialValues, setInitialValues] = useState({
         username: "",
         email: "",
@@ -36,6 +38,7 @@ export default function Profile() {
     const [openDeleteAccountDialog, setOpenDeleteAccountDialog] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [password, setPassword] = useState("");
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (!user) {
@@ -61,6 +64,7 @@ export default function Profile() {
     };
 
     const handleDeleteAccountAgree = async () => {
+        setLoading(true);
         closeSnackbar();
 
         const deleteAccountResponse = await axios
@@ -71,12 +75,15 @@ export default function Profile() {
                 headers: { Authorization: `Bearer ${user.token}` },
             })
             .catch((error) => {
+                setLoading(false);
+
                 enqueueSnackbar(getError(error), {
                     variant: "error",
                 });
             });
 
         if (deleteAccountResponse && deleteAccountResponse.data) {
+            setLoading(false);
             setPassword("");
             setOpenDeleteAccountDialog(false);
             dispatch({ type: "USER_LOGOUT" });
@@ -91,11 +98,23 @@ export default function Profile() {
         event.preventDefault();
     };
 
+    let renderSpinner = null;
+    if (loading) {
+        renderSpinner = (
+            <CircularProgress
+                color="error"
+                sx={{ position: "absolute", top: "50%", left: "50%", zIndex: 100 }}
+            />
+        );
+    }
+
     const renderDeleteAccountDialog = (
         <Dialog open={openDeleteAccountDialog} onClose={handleDeleteAccountDialogClose}>
             <DialogTitle>Delete Account</DialogTitle>
 
-            <DialogContent>
+            <DialogContent sx={{ position: "relative" }}>
+                {renderSpinner}
+
                 <DialogContentText>
                     <Typography variant="h6" component="span" color="error">
                         WARNING:{" "}

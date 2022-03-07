@@ -17,6 +17,7 @@ import ToggleButton from "@mui/material/ToggleButton";
 import FavoriteBorder from "@mui/icons-material/FavoriteBorder";
 import ShoppingBagIcon from "@mui/icons-material/ShoppingBag";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
+import CircularProgress from "@mui/material/CircularProgress";
 
 import ProductModel from "../../../models/Product";
 import Color from "../../../components/product/Color";
@@ -28,19 +29,20 @@ import { dbConnect, dbDisconnect, convertBsonToObject } from "../../../utils/dat
 export default function Product({
     product: { _id: productId, productName, brand, price, image, sizes, colours, likes, likeCount },
 }) {
+    const router = useRouter();
+    const { enqueueSnackbar } = useSnackbar();
+
     const [
         { user, hasCheckedProductPageLikes, likedProducts, hasCheckedProductComponentLikes },
         dispatch,
     ] = useDataLayerValue();
-
-    const router = useRouter();
-    const { enqueueSnackbar } = useSnackbar();
 
     const [size, setSize] = useState(null);
     const [quantity, setQuantity] = useState(1);
     const [selectedColour, setSelectedColour] = useState(null);
     const [isProductLiked, setIsProductLiked] = useState(false);
     const [_likeCount, setLikeCount] = useState(likeCount);
+    const [loading, setLoading] = useState(false);
 
     const handleSizeChange = (e, newValue) => {
         setSize(newValue);
@@ -178,11 +180,15 @@ export default function Product({
                     });
                 });
             } else {
+                setLoading(true);
+
                 const addToBagResponse = await axios
                     .put("/api/bag/add", product, {
                         headers: { Authorization: `Bearer ${user.token}` },
                     })
                     .catch((error) => {
+                        setLoading(false);
+
                         if (error.response) {
                             console.log(error.response.data);
                         } else if (error.request) {
@@ -193,6 +199,8 @@ export default function Product({
                     });
 
                 if (addToBagResponse) {
+                    setLoading(false);
+
                     dispatch({ type: "BAG_UPDATE", payload: addToBagResponse.data });
                     Cookies.set("bag", JSON.stringify(addToBagResponse.data));
 
@@ -207,6 +215,11 @@ export default function Product({
             }
         }
     };
+
+    let renderSpinner = null;
+    if (loading) {
+        renderSpinner = <CircularProgress sx={{ position: "absolute", top: "50%", left: "50%" }} />;
+    }
 
     return (
         <Box sx={{ p: 4 }}>
@@ -320,6 +333,7 @@ export default function Product({
                     </Typography>
                 </Stack>
             </Stack>
+            {renderSpinner}
         </Box>
     );
 }
