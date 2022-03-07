@@ -13,22 +13,10 @@ function convertToArrayAndSetCookie(set) {
 
 export const initialState = {
     user: Cookies.get("user") ? JSON.parse(Cookies.get("user")) : null,
-
     bag: Cookies.get("bag") ? JSON.parse(Cookies.get("bag")) : null,
-
     likedProducts: getLikedProductsOrCreateNew(),
-
     hasCheckedProductPageLikes: Cookies.get("hasCheckedProductPageLikes") ? true : false,
-
-    // hasCheckedProductPageLikes: Cookies.get("hasCheckedProductPageLikes")
-    //     ? JSON.parse(Cookies.get("hasCheckedProductPageLikes"))
-    //     : false,
-
     hasCheckedProductComponentLikes: Cookies.get("hasCheckedProductComponentLikes") ? true : false,
-
-    // hasCheckedProductComponentLikes: Cookies.get("hasCheckedProductComponentLikes")
-    //     ? JSON.parse(Cookies.get("hasCheckedProductComponentLikes"))
-    //     : false,
 };
 
 export function reducer(state, { type, payload }) {

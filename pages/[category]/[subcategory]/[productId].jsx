@@ -79,6 +79,9 @@ export default function Product({
                     dispatch({ type: "SET_CHECKED_PRODUCT_PAGE_LIKES" });
                 }
             }
+        } else {
+            // when user logs out:
+            setIsProductLiked(false);
         }
     }, [
         user,
@@ -193,7 +196,7 @@ export default function Product({
                     dispatch({ type: "BAG_UPDATE", payload: addToBagResponse.data });
                     Cookies.set("bag", JSON.stringify(addToBagResponse.data));
 
-                    enqueueSnackbar("Product successfully added to bag", {
+                    enqueueSnackbar("Product successfully added to bag.", {
                         variant: "success",
                     });
 
@@ -211,7 +214,7 @@ export default function Product({
 
             <Stack direction="row" spacing={4}>
                 <Box sx={{ position: "relative", height: "600px", width: "450px" }}>
-                    <Image src={image} alt={image} layout="fill" objectFit="cover" />
+                    <Image src={image} alt={image} layout="fill" objectFit="cover" priority />
                 </Box>
 
                 <Stack spacing={4}>

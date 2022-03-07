@@ -18,8 +18,8 @@ async function handler(req, res) {
             if (product._id === req.query.productId) {
                 product.quantity = req.body.quantity;
                 product.total = product.quantity * product.price;
-                return product;
             }
+            return product;
         });
 
         const updatedBag = await Bag.findOneAndUpdate(

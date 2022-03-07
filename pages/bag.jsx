@@ -87,6 +87,173 @@ export default function ShoppingBag() {
         }
     };
 
+    let renderBag = null;
+    if (bag) {
+        if (bag.products.length > 0) {
+            renderBag = (
+                <Box sx={{ display: "flex", gap: 10 }}>
+                    <Box sx={{ flex: 8 }}>
+                        <TableContainer component={Paper}>
+                            <Table sx={{ minWidth: 650 }}>
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell>Item</TableCell>
+                                        <TableCell align="right">Price</TableCell>
+                                        <TableCell align="right">Quantity</TableCell>
+                                        <TableCell align="right">Total</TableCell>
+                                        <TableCell align="right">Action</TableCell>
+                                    </TableRow>
+                                </TableHead>
+
+                                <TableBody>
+                                    {bag.products.map(
+                                        ({
+                                            _id,
+                                            image,
+                                            productName,
+                                            size,
+                                            colour,
+                                            brand,
+                                            total,
+                                            quantity,
+                                            price,
+                                        }) => (
+                                            <TableRow
+                                                sx={{
+                                                    "&:last-child td, &:last-child th": {
+                                                        border: 0,
+                                                    },
+                                                }}
+                                                key={_id}
+                                            >
+                                                <TableCell component="th" scope="row">
+                                                    {/* Parent box -> 2 children */}
+                                                    <Box
+                                                        sx={{
+                                                            display: "flex",
+                                                            gap: 1,
+                                                            alignItems: "center",
+                                                        }}
+                                                    >
+                                                        {/* Image box */}
+                                                        <Box
+                                                            sx={{
+                                                                height: "15rem",
+                                                                position: "relative",
+                                                                flex: 1,
+                                                            }}
+                                                        >
+                                                            <Image
+                                                                src={image}
+                                                                alt={image}
+                                                                layout="fill"
+                                                                objectFit="contain"
+                                                            />
+                                                        </Box>
+
+                                                        {/* Product details box */}
+                                                        <Box sx={{ flex: 1 }}>
+                                                            <Typography variant="body2">
+                                                                Name: {productName}
+                                                            </Typography>
+
+                                                            <Typography variant="body2">
+                                                                Brand: {brand}
+                                                            </Typography>
+
+                                                            <Typography variant="body2">
+                                                                Size: {size}
+                                                            </Typography>
+
+                                                            <Typography variant="body2">
+                                                                Colour: {colour}
+                                                            </Typography>
+                                                        </Box>
+                                                    </Box>
+                                                </TableCell>
+
+                                                <TableCell align="right" sx={{ width: "5rem" }}>
+                                                    R{price}
+                                                </TableCell>
+
+                                                <TableCell align="right" sx={{ width: "5rem" }}>
+                                                    <FormControl variant="standard" fullWidth>
+                                                        <Select
+                                                            value={quantity}
+                                                            onChange={(e) => {
+                                                                handleQuantityChange(e, _id);
+                                                            }}
+                                                        >
+                                                            {quantityOptions.map((option) => (
+                                                                <MenuItem
+                                                                    value={option}
+                                                                    key={option}
+                                                                >
+                                                                    {option}
+                                                                </MenuItem>
+                                                            ))}
+                                                        </Select>
+                                                    </FormControl>
+                                                </TableCell>
+
+                                                <TableCell align="right" sx={{ width: "5rem" }}>
+                                                    R{total}
+                                                </TableCell>
+
+                                                <TableCell align="right" sx={{ width: "5rem" }}>
+                                                    <IconButton
+                                                        onClick={() => handleRemoveProduct(_id)}
+                                                    >
+                                                        <DeleteForeverIcon />
+                                                    </IconButton>
+                                                </TableCell>
+                                            </TableRow>
+                                        )
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    </Box>
+
+                    <Paper
+                        sx={{
+                            flex: 2,
+                            p: 2,
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            gap: 4,
+                            height: "15rem",
+                        }}
+                    >
+                        <Typography variant="h5"> Order Summary</Typography>
+
+                        <Box
+                            sx={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                width: "100%",
+                            }}
+                        >
+                            <Typography variant="h6"> Subtotal</Typography>
+                            <Typography variant="h4">
+                                {bag.products.reduce((subtotal, { total }) => subtotal + total, 0)}
+                            </Typography>
+                        </Box>
+
+                        <Button variant="contained" sx={{ width: "100%" }}>
+                            Checkout
+                        </Button>
+                    </Paper>
+                </Box>
+            );
+        } else {
+            renderBag = <Typography>There are currently no products in your bag</Typography>;
+        }
+    }
+
     return (
         <Box sx={{ p: 4 }}>
             <Breadcrumbs />
@@ -95,172 +262,7 @@ export default function ShoppingBag() {
                 Shopping bag
             </Typography>
 
-            {bag?.products.length > 0 ? (
-                <>
-                    <Box sx={{ display: "flex", gap: 10 }}>
-                        <Box sx={{ flex: 8 }}>
-                            <TableContainer component={Paper}>
-                                <Table sx={{ minWidth: 650 }}>
-                                    <TableHead>
-                                        <TableRow>
-                                            <TableCell>Item</TableCell>
-                                            <TableCell align="right">Price</TableCell>
-                                            <TableCell align="right">Quantity</TableCell>
-                                            <TableCell align="right">Total</TableCell>
-                                            <TableCell align="right">Action</TableCell>
-                                        </TableRow>
-                                    </TableHead>
-
-                                    <TableBody>
-                                        {bag?.products.map(
-                                            ({
-                                                _id,
-                                                image,
-                                                productName,
-                                                size,
-                                                colour,
-                                                brand,
-                                                total,
-                                                quantity,
-                                                price,
-                                            }) => (
-                                                <TableRow
-                                                    sx={{
-                                                        "&:last-child td, &:last-child th": {
-                                                            border: 0,
-                                                        },
-                                                    }}
-                                                    key={_id}
-                                                >
-                                                    <TableCell component="th" scope="row">
-                                                        {/* Parent box -> 2 children */}
-                                                        <Box
-                                                            sx={{
-                                                                display: "flex",
-                                                                gap: 1,
-                                                                alignItems: "center",
-                                                            }}
-                                                        >
-                                                            {/* Image box */}
-                                                            <Box
-                                                                sx={{
-                                                                    height: "15rem",
-                                                                    position: "relative",
-                                                                    flex: 1,
-                                                                }}
-                                                            >
-                                                                <Image
-                                                                    src={image}
-                                                                    alt={image}
-                                                                    layout="fill"
-                                                                    objectFit="contain"
-                                                                />
-                                                            </Box>
-
-                                                            {/* Product details box */}
-                                                            <Box sx={{ flex: 1 }}>
-                                                                <Typography variant="body2">
-                                                                    Name: {productName}
-                                                                </Typography>
-
-                                                                <Typography variant="body2">
-                                                                    Brand: {brand}
-                                                                </Typography>
-
-                                                                <Typography variant="body2">
-                                                                    Size: {size}
-                                                                </Typography>
-
-                                                                <Typography variant="body2">
-                                                                    Colour: {colour}
-                                                                </Typography>
-                                                            </Box>
-                                                        </Box>
-                                                    </TableCell>
-
-                                                    <TableCell align="right" sx={{ width: "5rem" }}>
-                                                        R{price}
-                                                    </TableCell>
-
-                                                    <TableCell align="right" sx={{ width: "5rem" }}>
-                                                        <FormControl variant="standard" fullWidth>
-                                                            <Select
-                                                                value={quantity}
-                                                                onChange={(e) => {
-                                                                    handleQuantityChange(e, _id);
-                                                                }}
-                                                            >
-                                                                {quantityOptions.map((option) => (
-                                                                    <MenuItem
-                                                                        value={option}
-                                                                        key={option}
-                                                                    >
-                                                                        {option}
-                                                                    </MenuItem>
-                                                                ))}
-                                                            </Select>
-                                                        </FormControl>
-                                                    </TableCell>
-
-                                                    <TableCell align="right" sx={{ width: "5rem" }}>
-                                                        R{total}
-                                                    </TableCell>
-
-                                                    <TableCell align="right" sx={{ width: "5rem" }}>
-                                                        <IconButton
-                                                            onClick={() => handleRemoveProduct(_id)}
-                                                        >
-                                                            <DeleteForeverIcon />
-                                                        </IconButton>
-                                                    </TableCell>
-                                                </TableRow>
-                                            )
-                                        )}
-                                    </TableBody>
-                                </Table>
-                            </TableContainer>
-                        </Box>
-
-                        <Paper
-                            sx={{
-                                flex: 2,
-                                p: 2,
-                                display: "flex",
-                                flexDirection: "column",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                gap: 4,
-                                height: "15rem",
-                            }}
-                        >
-                            <Typography variant="h5"> Order Summary</Typography>
-
-                            <Box
-                                sx={{
-                                    display: "flex",
-                                    justifyContent: "space-between",
-                                    alignItems: "center",
-                                    width: "100%",
-                                }}
-                            >
-                                <Typography variant="h6"> Subtotal</Typography>
-                                <Typography variant="h4">
-                                    {bag?.products.reduce(
-                                        (subtotal, { total }) => subtotal + total,
-                                        0
-                                    )}
-                                </Typography>
-                            </Box>
-
-                            <Button variant="contained" sx={{ width: "100%" }}>
-                                Checkout
-                            </Button>
-                        </Paper>
-                    </Box>
-                </>
-            ) : (
-                <Typography>There are currently no products in your bag</Typography>
-            )}
+            {renderBag}
         </Box>
     );
 }
