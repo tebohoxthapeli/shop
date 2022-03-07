@@ -103,7 +103,7 @@ export default function Login() {
         >
             <Box sx={{ flex: 1, position: "relative" }}>
                 <Image
-                    src="/images/illustrations/DrawKit-Vector-Illustration-ecommerce-09.svg"
+                    src="/images/illustrations/DrawKit-Vector-Illustration-ecommerce-09.png"
                     alt="llustration"
                     layout="fill"
                     objectFit="contain"

@@ -14,6 +14,8 @@ export async function deleteProducts(req, res) {
     }
 }
 
+// for use with API routes:
+
 export async function getProducts(req, res) {
     if (req.method !== "GET") return res.status(500).json({ error: "GET method expected." });
 
@@ -75,7 +77,20 @@ export async function getProducts(req, res) {
     }
 }
 
+// for use with getStaticProps / getServerSideProps
+
 export async function findProducts(query) {
+    /*
+        shape of query: {
+            category,
+            subcategory?,
+            sortBy?,
+            maxPrice?,
+            brand?: [],
+            limit?
+        }
+    */
+
     let { sortBy, maxPrice, limit, brand, ...findCondition } = query;
     maxPrice = maxPrice || 10000;
     limit = parseInt(limit) || 0; // 0 will get all items

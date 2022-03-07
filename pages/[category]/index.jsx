@@ -9,13 +9,15 @@ import Sidebar from "../../components/categoryAndSubcategory/Sidebar";
 import { dbConnect, dbDisconnect, convertBsonToObject } from "../../utils/database";
 
 export default function Category(props) {
+    const allCategoryBrands = props.allCategoryProducts.map(({ brand }) => brand);
+
     return (
         <Box sx={{ p: 4 }}>
             <BreadcrumbComponent />
 
             <Grid container columnSpacing={4}>
                 <Grid item xs={3}>
-                    <Sidebar category={props.category} />
+                    <Sidebar category={props.category} allBrands={allCategoryBrands} />
                 </Grid>
 
                 <Grid item xs={9}>
@@ -28,6 +30,7 @@ export default function Category(props) {
 
 export async function getServerSideProps({ query }) {
     try {
+        const allCategoryProducts = await findProducts({ category: query.category });
         const products = await findProducts(query);
 
         if (products.length === 0) {
@@ -44,6 +47,7 @@ export async function getServerSideProps({ query }) {
             props: {
                 category,
                 products,
+                allCategoryProducts,
             },
         };
     } catch (err) {

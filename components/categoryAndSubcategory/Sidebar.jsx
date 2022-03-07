@@ -39,22 +39,25 @@ const maxPriceOptions = [
 ];
 
 const brands = [
-    "G-Star RAW",
-    "Glamorous",
-    "Adidas",
-    "Cotton-On",
+    "Cotton On",
     "Hi-Tec",
     "Lark & Crosse",
-    "Superbalist",
     "Trendyol",
+    "Superbalist",
     "Edit",
-    "Velvet",
     "Mango",
+    "Glamorous",
+    "Velvet",
+    "Adidas",
     "Soviet",
     "Chrome Roses",
+    "G-Star RAW",
+    "Dr Martens",
+    "Miss Black",
+    "Nike",
 ];
 
-export default function Sidebar({ category }) {
+export default function Sidebar({ category, allBrands }) {
     const { query, ...router } = useRouter();
 
     const [filters, setFilters] = useState({
@@ -62,25 +65,6 @@ export default function Sidebar({ category }) {
         maxPrice: query.maxPrice || 10000,
         brand: query.brand ? (typeof query.brand === "string" ? [query.brand] : query.brand) : [],
     });
-
-    // const [filters, setFilters] = useState({ sortBy: "newest", maxPrice: 10000, brand: [] });
-
-    const handleFiltersChange = (e) => {
-        setFilters({ ...filters, [e.target.name]: e.target.value });
-    };
-
-    const handleBrandChange = (brand) => {
-        const brandArray = filters.brand;
-
-        if (brandArray.find((item) => item === brand)) {
-            setFilters({
-                ...filters,
-                brand: brandArray.filter((item) => item !== brand),
-            });
-        } else {
-            setFilters({ ...filters, brand: brandArray.push(brand) });
-        }
-    };
 
     useEffect(() => {
         const urlObject = {
@@ -102,7 +86,49 @@ export default function Sidebar({ category }) {
 
         router.replace(urlObject);
         // eslint-disable-next-line
-    }, [filters.brand, filters.maxPrice, filters.sortBy, query.subcategory, query.category]);
+    }, [query.subcategory, query.category, filters]);
+
+    const handleFiltersChange = (e) => {
+        setFilters({ ...filters, [e.target.name]: e.target.value });
+    };
+
+    const handleBrandChange = (brand) => {
+        const brandArray = filters.brand;
+
+        if (brandArray.find((item) => item === brand)) {
+            setFilters({
+                ...filters,
+                brand: brandArray.filter((item) => item !== brand),
+            });
+        } else {
+            brandArray.push(brand);
+            setFilters({ ...filters, brand: brandArray });
+        }
+    };
+
+    let renderBrandsFormGroup = (
+        <FormGroup>
+            {brands.map((brand) => {
+                return (
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                size="small"
+                                name={brand}
+                                checked={
+                                    filters.brand.find((item) => item === brand) ? true : false
+                                }
+                                onChange={() => handleBrandChange(brand)}
+                                disabled={!allBrands.includes(brand)}
+                            />
+                        }
+                        label={brand}
+                        key={brand}
+                    />
+                );
+            })}
+        </FormGroup>
+    );
 
     return (
         <Box>
@@ -165,28 +191,7 @@ export default function Sidebar({ category }) {
                     <Typography>Brands</Typography>
                 </AccordionSummary>
 
-                <AccordionDetails>
-                    <FormGroup>
-                        {brands.map((brand) => (
-                            <FormControlLabel
-                                control={
-                                    <Checkbox
-                                        size="small"
-                                        name={brand}
-                                        checked={
-                                            filters.brand.find((item) => item === brand)
-                                                ? true
-                                                : false
-                                        }
-                                        onChange={() => handleBrandChange(brand)}
-                                    />
-                                }
-                                label={brand}
-                                key={brand}
-                            />
-                        ))}
-                    </FormGroup>
-                </AccordionDetails>
+                <AccordionDetails>{renderBrandsFormGroup}</AccordionDetails>
             </Accordion>
 
             {category && (

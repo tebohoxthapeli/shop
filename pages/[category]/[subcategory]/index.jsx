@@ -7,13 +7,14 @@ import BreadcrumbComponent from "../../../components/BreadCrumbs";
 import Sidebar from "../../../components/categoryAndSubcategory/Sidebar";
 
 export default function Subcategory(props) {
+    const allSubcategoryBrands = props.allSubcategoryProducts.map(({ brand }) => brand);
     return (
         <Box sx={{ p: 4 }}>
             <BreadcrumbComponent />
 
             <Grid container columnSpacing={4}>
                 <Grid item xs={3}>
-                    <Sidebar />
+                    <Sidebar allBrands={allSubcategoryBrands} />
                 </Grid>
 
                 <Grid item xs={9}>
@@ -26,6 +27,11 @@ export default function Subcategory(props) {
 
 export async function getServerSideProps({ query }) {
     try {
+        const allSubcategoryProducts = await findProducts({
+            category: query.category,
+            subcategory: query.subcategory,
+        });
+
         const products = await findProducts(query);
 
         if (products.length === 0) {
@@ -38,6 +44,7 @@ export async function getServerSideProps({ query }) {
             props: {
                 subcategory: query.subcategory,
                 products,
+                allSubcategoryProducts,
             },
         };
     } catch (err) {
