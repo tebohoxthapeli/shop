@@ -79,67 +79,78 @@ export async function getProducts(req, res) {
 
 // for use with getStaticProps / getServerSideProps
 
+// export async function findProducts(query) {
+//     /*
+//         shape of query: {
+//             category,
+//             subcategory?,
+//             sortBy?,
+//             maxPrice?,
+//             brand?: [],
+//             limit?
+//         }
+//     */
+
+//     let { sortBy, maxPrice, limit, brand, ...findCondition } = query;
+//     maxPrice = maxPrice || 10000;
+//     limit = parseInt(limit) || 0; // 0 will get all items
+
+//     switch (sortBy) {
+//         case "mostPopular": {
+//             sortBy = { likeCount: "desc" };
+//             break;
+//         }
+//         case "leastPopular": {
+//             sortBy = { likeCount: "asc" };
+//             break;
+//         }
+//         case "highestPrice": {
+//             sortBy = { price: "desc" };
+//             break;
+//         }
+//         case "lowestPrice": {
+//             sortBy = { price: "asc" };
+//             break;
+//         }
+//         default: {
+//             sortBy = { createdAt: "desc" };
+//         }
+//     }
+
+//     try {
+//         await dbConnect();
+//         let products;
+
+//         if (brand) {
+//             products = await Product.find(findCondition)
+//                 .where("brand")
+//                 .in(brand)
+//                 .where("price")
+//                 .lte(maxPrice)
+//                 .limit(limit)
+//                 .sort(sortBy);
+//         } else {
+//             products = await Product.find(findCondition)
+//                 .where("price")
+//                 .lte(maxPrice)
+//                 .limit(limit)
+//                 .sort(sortBy);
+//         }
+
+//         await dbDisconnect();
+//         return convertBsonToObject(products);
+//     } catch (err) {
+//         console.log("Error:", err.message);
+//     }
+// }
+
 export async function findProducts(query) {
-    /*
-        shape of query: {
-            category,
-            subcategory?,
-            sortBy?,
-            maxPrice?,
-            brand?: [],
-            limit?
-        }
-    */
-
-    let { sortBy, maxPrice, limit, brand, ...findCondition } = query;
-    maxPrice = maxPrice || 10000;
-    limit = parseInt(limit) || 0; // 0 will get all items
-
-    switch (sortBy) {
-        case "mostPopular": {
-            sortBy = { likeCount: "desc" };
-            break;
-        }
-        case "leastPopular": {
-            sortBy = { likeCount: "asc" };
-            break;
-        }
-        case "highestPrice": {
-            sortBy = { price: "desc" };
-            break;
-        }
-        case "lowestPrice": {
-            sortBy = { price: "asc" };
-            break;
-        }
-        default: {
-            sortBy = { createdAt: "desc" };
-        }
-    }
-
     try {
         await dbConnect();
-        let products;
-
-        if (brand) {
-            products = await Product.find(findCondition)
-                .where("brand")
-                .in(brand)
-                .where("price")
-                .lte(maxPrice)
-                .limit(limit)
-                .sort(sortBy);
-        } else {
-            products = await Product.find(findCondition)
-                .where("price")
-                .lte(maxPrice)
-                .limit(limit)
-                .sort(sortBy);
-        }
-
+        const products = convertBsonToObject(await Product.find(query).sort({ createdAt: "desc" }));
         await dbDisconnect();
-        return convertBsonToObject(products);
-    } catch (err) {
-        console.log("Error:", err.message);
+        return products;
+    } catch (error) {
+        console.log("findProducts:", error.message);
     }
 }

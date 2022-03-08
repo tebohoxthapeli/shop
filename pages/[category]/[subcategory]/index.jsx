@@ -1,54 +1,68 @@
+// MUI imports:
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 
-import { findProducts } from "../../../utils/functions";
+// Component imports:
 import Main from "../../../components/categoryAndSubcategory/Main";
 import BreadcrumbComponent from "../../../components/BreadCrumbs";
 import Sidebar from "../../../components/categoryAndSubcategory/Sidebar";
 
-export default function Subcategory(props) {
-    const allSubcategoryBrands = props.allSubcategoryProducts.map(({ brand }) => brand);
+// Models and utility imports:
+import { findProducts } from "../../../utils/functions";
+import ProductModel from "../../../models/Product";
+import { convertBsonToObject, dbConnect, dbDisconnect } from "../../../utils/database";
+import { FilterContextProvider } from "../../../context/productFilterContext/FilterDataLayer";
+
+export default function Subcategory({ products }) {
     return (
-        <Box sx={{ p: 4 }}>
-            <BreadcrumbComponent />
+        <FilterContextProvider>
+            <Box sx={{ p: 4 }}>
+                <BreadcrumbComponent />
 
-            <Grid container columnSpacing={4}>
-                <Grid item xs={3}>
-                    <Sidebar allBrands={allSubcategoryBrands} />
-                </Grid>
+                <Grid container columnSpacing={4}>
+                    <Grid item xs={3}>
+                        <Sidebar />
+                    </Grid>
 
-                <Grid item xs={9}>
-                    <Main {...props} />
+                    <Grid item xs={9}>
+                        <Main products={products} />
+                    </Grid>
                 </Grid>
-            </Grid>
-        </Box>
+            </Box>
+        </FilterContextProvider>
     );
 }
 
-export async function getServerSideProps({ query }) {
+export async function getStaticPaths() {
     try {
-        const allSubcategoryProducts = await findProducts({
-            category: query.category,
-            subcategory: query.subcategory,
-        });
+        await dbConnect();
+        const products = convertBsonToObject(await ProductModel.find({}));
+        await dbDisconnect();
 
-        const products = await findProducts(query);
-
-        if (products.length === 0) {
-            return {
-                notFound: true,
-            };
-        }
+        const paths = products.map(({ category, subcategory }) => ({
+            params: { category, subcategory },
+        }));
 
         return {
-            props: {
-                subcategory: query.subcategory,
-                products,
-                allSubcategoryProducts,
-            },
+            paths,
+            fallback: false,
         };
-    } catch (err) {
-        console.log("Error:", err.message);
+    } catch (error) {
+        console.log("getStaticPaths error:", error.message);
+        return;
+    }
+}
+
+export async function getStaticProps({ params }) {
+    try {
+        const products = await findProducts(params);
+
+        return {
+            props: { products },
+            revalidate: 10,
+        };
+    } catch (error) {
+        console.log("getStaticProps error:", error.message);
         return;
     }
 }

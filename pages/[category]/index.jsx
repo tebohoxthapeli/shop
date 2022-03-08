@@ -1,57 +1,69 @@
+// MUI imports:
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 
-import { findProducts } from "../../utils/functions";
-import CategoryModel from "../../models/Category";
+// Component imports:
 import Main from "../../components/categoryAndSubcategory/Main";
 import BreadcrumbComponent from "../../components/BreadCrumbs";
 import Sidebar from "../../components/categoryAndSubcategory/Sidebar";
-import { dbConnect, dbDisconnect, convertBsonToObject } from "../../utils/database";
 
-export default function Category(props) {
-    const allCategoryBrands = props.allCategoryProducts.map(({ brand }) => brand);
+// Models and utility imports:
+import { findProducts } from "../../utils/functions";
+import ProductModel from "../../models/Product";
+import { dbConnect, dbDisconnect, convertBsonToObject } from "../../utils/database";
+import { FilterContextProvider } from "../../context/productFilterContext/FilterDataLayer";
+
+export default function Category({ products }) {
+    const subcategorySet = new Set(products.map(({ subcategory }) => subcategory));
+    const subcategories = Array.from(subcategorySet);
 
     return (
-        <Box sx={{ p: 4 }}>
-            <BreadcrumbComponent />
+        <FilterContextProvider>
+            <Box sx={{ p: 4 }}>
+                <BreadcrumbComponent />
 
-            <Grid container columnSpacing={4}>
-                <Grid item xs={3}>
-                    <Sidebar category={props.category} allBrands={allCategoryBrands} />
-                </Grid>
+                <Grid container columnSpacing={4}>
+                    <Grid item xs={3}>
+                        <Sidebar subcategories={subcategories} />
+                    </Grid>
 
-                <Grid item xs={9}>
-                    <Main {...props} />
+                    <Grid item xs={9}>
+                        <Main products={products} />
+                    </Grid>
                 </Grid>
-            </Grid>
-        </Box>
+            </Box>
+        </FilterContextProvider>
     );
 }
 
-export async function getServerSideProps({ query }) {
+export async function getStaticPaths() {
     try {
-        const allCategoryProducts = await findProducts({ category: query.category });
-        const products = await findProducts(query);
-
-        if (products.length === 0) {
-            return {
-                notFound: true,
-            };
-        }
-
         await dbConnect();
-        const category = convertBsonToObject(await CategoryModel.findOne({ name: query.category }));
+        const products = convertBsonToObject(await ProductModel.find({}));
         await dbDisconnect();
 
+        const paths = products.map(({ category }) => ({ params: { category } }));
+
         return {
-            props: {
-                category,
-                products,
-                allCategoryProducts,
-            },
+            paths,
+            fallback: false,
         };
-    } catch (err) {
-        console.log("Error:", err.message);
+    } catch (error) {
+        console.log("getStaticPaths error:", error.message);
+        return;
+    }
+}
+
+export async function getStaticProps({ params }) {
+    try {
+        const products = await findProducts(params);
+
+        return {
+            props: { products },
+            revalidate: 10,
+        };
+    } catch (error) {
+        console.log("getStaticProps error:", error.message);
         return;
     }
 }
