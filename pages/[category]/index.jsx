@@ -1,13 +1,10 @@
-// MUI imports:
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 
-// Component imports:
 import Main from "../../components/categoryAndSubcategory/Main";
 import BreadcrumbComponent from "../../components/BreadCrumbs";
 import Sidebar from "../../components/categoryAndSubcategory/Sidebar";
 
-// Models and utility imports:
 import { findProducts } from "../../utils/functions";
 import ProductModel from "../../models/Product";
 import { dbConnect, dbDisconnect, convertBsonToObject } from "../../utils/database";

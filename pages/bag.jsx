@@ -17,6 +17,7 @@ import TableContainer from "@mui/material/TableContainer";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import CircularProgress from "@mui/material/CircularProgress";
 import Backdrop from "@mui/material/Backdrop";
+import ShoppingCartCheckoutIcon from "@mui/icons-material/ShoppingCartCheckout";
 
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
@@ -111,7 +112,7 @@ export default function ShoppingBag() {
     if (bag) {
         if (bag.products.length > 0) {
             renderBag = (
-                <Box sx={{ display: "flex", gap: 10 }}>
+                <Box sx={{ display: "flex", gap: 4 }}>
                     <Box sx={{ flex: 8 }}>
                         <TableContainer component={Paper}>
                             <Table sx={{ minWidth: 650 }}>
@@ -248,7 +249,6 @@ export default function ShoppingBag() {
                         }}
                     >
                         <Typography variant="h5"> Order Summary</Typography>
-
                         <Box
                             sx={{
                                 display: "flex",
@@ -257,13 +257,21 @@ export default function ShoppingBag() {
                                 width: "100%",
                             }}
                         >
-                            <Typography variant="h6"> Subtotal</Typography>
+                            <Typography variant="h6" color="text.secondary">
+                                {" "}
+                                Subtotal
+                            </Typography>
+
                             <Typography variant="h4">
-                                {bag.products.reduce((subtotal, { total }) => subtotal + total, 0)}
+                                R{bag.products.reduce((subtotal, { total }) => subtotal + total, 0)}
                             </Typography>
                         </Box>
 
-                        <Button variant="contained" sx={{ width: "100%" }}>
+                        <Button
+                            variant="contained"
+                            fullWidth
+                            startIcon={<ShoppingCartCheckoutIcon />}
+                        >
                             Checkout
                         </Button>
                     </Paper>
