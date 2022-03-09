@@ -18,6 +18,7 @@ import FavoriteBorder from "@mui/icons-material/FavoriteBorder";
 import ShoppingBagIcon from "@mui/icons-material/ShoppingBag";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import CircularProgress from "@mui/material/CircularProgress";
+import Backdrop from "@mui/material/Backdrop";
 
 import ProductModel from "../../../models/Product";
 import Color from "../../../components/product/Color";
@@ -200,9 +201,7 @@ export default function Product({
 
                 if (addToBagResponse) {
                     setLoading(false);
-
                     dispatch({ type: "BAG_UPDATE", payload: addToBagResponse.data });
-                    Cookies.set("bag", JSON.stringify(addToBagResponse.data));
 
                     enqueueSnackbar("Product successfully added to bag.", {
                         variant: "success",
@@ -218,7 +217,11 @@ export default function Product({
 
     let renderSpinner = null;
     if (loading) {
-        renderSpinner = <CircularProgress sx={{ position: "absolute", top: "50%", left: "50%" }} />;
+        renderSpinner = (
+            <Backdrop open={loading} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+                <CircularProgress />
+            </Backdrop>
+        );
     }
 
     return (

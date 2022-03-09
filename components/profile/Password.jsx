@@ -1,7 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
 import { useSnackbar } from "notistack";
-import Cookies from "js-cookie";
 import { object, string } from "yup";
 import { Formik, Form, Field } from "formik";
 
@@ -15,6 +14,7 @@ import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import InputAdornment from "@mui/material/InputAdornment";
 import CircularProgress from "@mui/material/CircularProgress";
+import Backdrop from "@mui/material/Backdrop";
 
 import { useDataLayerValue } from "../../context/DataLayer";
 import { getError } from "../../utils/error";
@@ -80,20 +80,16 @@ export default function Password({ user }) {
 
             values.oldPassword = "";
             values.newPassword = "";
-
-            const newUserDetails = editPasswordResponse.data;
-            dispatch({ type: "USER_LOGIN", payload: newUserDetails });
-            Cookies.set("user", JSON.stringify(newUserDetails));
+            dispatch({ type: "USER_LOGIN", payload: editPasswordResponse.data });
         }
     };
 
     let renderSpinner = null;
     if (loading) {
         renderSpinner = (
-            <CircularProgress
-                color="warning"
-                sx={{ position: "absolute", top: "50%", left: "50%" }}
-            />
+            <Backdrop open={loading} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+                <CircularProgress color="warning" />
+            </Backdrop>
         );
     }
 

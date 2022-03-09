@@ -1,6 +1,5 @@
 import axios from "axios";
 import { useSnackbar } from "notistack";
-import Cookies from "js-cookie";
 import { object, string } from "yup";
 import { Formik, Form, Field } from "formik";
 import { useState } from "react";
@@ -11,6 +10,7 @@ import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
+import Backdrop from "@mui/material/Backdrop";
 
 import { getError } from "../../utils/error";
 import { useDataLayerValue } from "../../context/DataLayer";
@@ -50,13 +50,16 @@ export default function Main({ initialValues, user }) {
 
             enqueueSnackbar("Profile details changed successfully.", { variant: "success" });
             dispatch({ type: "USER_LOGIN", payload: editProfileResponse.data });
-            Cookies.set("user", JSON.stringify(editProfileResponse.data));
         }
     };
 
     let renderSpinner = null;
     if (loading) {
-        renderSpinner = <CircularProgress sx={{ position: "absolute", top: "50%", left: "50%" }} />;
+        renderSpinner = (
+            <Backdrop open={loading} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+                <CircularProgress />
+            </Backdrop>
+        );
     }
 
     return (

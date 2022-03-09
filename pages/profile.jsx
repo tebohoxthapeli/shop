@@ -18,6 +18,7 @@ import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import InputAdornment from "@mui/material/InputAdornment";
 import CircularProgress from "@mui/material/CircularProgress";
+import Backdrop from "@mui/material/Backdrop";
 
 import Main from "../components/profile/Main";
 import Password from "../components/profile/Password";
@@ -101,10 +102,9 @@ export default function Profile() {
     let renderSpinner = null;
     if (loading) {
         renderSpinner = (
-            <CircularProgress
-                color="error"
-                sx={{ position: "absolute", top: "50%", left: "50%", zIndex: 100 }}
-            />
+            <Backdrop open={loading} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+                <CircularProgress color="error" />
+            </Backdrop>
         );
     }
 

@@ -2,7 +2,6 @@ import axios from "axios";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import Cookies from "js-cookie";
 
 import Box from "@mui/material/Box";
 import Table from "@mui/material/Table";
@@ -17,6 +16,7 @@ import Typography from "@mui/material/Typography";
 import TableContainer from "@mui/material/TableContainer";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import CircularProgress from "@mui/material/CircularProgress";
+import Backdrop from "@mui/material/Backdrop";
 
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
@@ -65,9 +65,7 @@ export default function ShoppingBag() {
 
         if (editBagResponse) {
             setLoading(false);
-
             dispatch({ type: "BAG_UPDATE", payload: editBagResponse.data });
-            Cookies.set("bag", JSON.stringify(editBagResponse.data));
         }
     };
 
@@ -96,15 +94,17 @@ export default function ShoppingBag() {
 
         if (removeProductResponse) {
             setLoading(false);
-
             dispatch({ type: "BAG_UPDATE", payload: removeProductResponse.data });
-            Cookies.set("bag", JSON.stringify(removeProductResponse.data));
         }
     };
 
     let renderSpinner = null;
     if (loading) {
-        renderSpinner = <CircularProgress sx={{ position: "absolute", top: "50%", left: "50%" }} />;
+        renderSpinner = (
+            <Backdrop open={loading} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+                <CircularProgress />
+            </Backdrop>
+        );
     }
 
     let renderBag = null;
@@ -270,7 +270,11 @@ export default function ShoppingBag() {
                 </Box>
             );
         } else {
-            renderBag = <Typography>There are currently no products in your bag</Typography>;
+            renderBag = (
+                <Typography color="text.secondary">
+                    There are currently no products in your bag
+                </Typography>
+            );
         }
     }
 

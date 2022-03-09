@@ -38,35 +38,45 @@ export function reducer(state, { type, payload }) {
             };
         }
 
-        case "BAG_UPDATE":
+        case "BAG_UPDATE": {
+            Cookies.set("bag", JSON.stringify(payload));
             return { ...state, bag: payload };
+        }
 
-        case "USER_LOGIN":
+        case "USER_LOGIN": {
+            Cookies.set("user", JSON.stringify(payload));
             return { ...state, user: payload };
+        }
 
         case "ADD_PRODUCT_TO_LIKED": {
-            const likedProducts = state.likedProducts.add(payload);
-            convertToArrayAndSetCookie(likedProducts);
+            // .add will return the SAME set with a modified value (because added new item)
+            const modifiedCurrentSet = state.likedProducts.add(payload);
 
-            return { ...state, likedProducts };
+            // create a new set to assign to state so that a rerender occurs
+            const newSet = new Set(modifiedCurrentSet);
+
+            convertToArrayAndSetCookie(newSet);
+
+            return { ...state, likedProducts: newSet };
         }
 
         case "REMOVE_PRODUCT_FROM_LIKED": {
-            const { likedProducts } = state;
+            const currentSet = state.likedProducts;
+            currentSet.delete(payload);
+            const newSet = new Set(currentSet);
 
-            likedProducts.delete(payload);
-            convertToArrayAndSetCookie(likedProducts);
+            convertToArrayAndSetCookie(newSet);
 
-            return { ...state, likedProducts };
+            return { ...state, likedProducts: newSet };
         }
 
         case "SET_CHECKED_PRODUCT_PAGE_LIKES": {
-            Cookies.set("hasCheckedProductPageLikes", true);
+            Cookies.set("hasCheckedProductPageLikes", JSON.stringify(true));
             return { ...state, hasCheckedProductPageLikes: true };
         }
 
         case "SET_CHECKED_PRODUCT_COMPONENT_LIKES": {
-            Cookies.set("hasCheckedProductComponentLikes", true);
+            Cookies.set("hasCheckedProductComponentLikes", JSON.stringify(true));
             return { ...state, hasCheckedProductComponentLikes: true };
         }
 

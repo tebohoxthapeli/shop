@@ -4,7 +4,6 @@ import Image from "next/image";
 import { useSnackbar } from "notistack";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
-import Cookies from "js-cookie";
 
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
@@ -18,6 +17,7 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import InputAdornment from "@mui/material/InputAdornment";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import CircularProgress from "@mui/material/CircularProgress";
+import Backdrop from "@mui/material/Backdrop";
 
 import { object, string, boolean } from "yup";
 import { Formik, Form, Field, ErrorMessage } from "formik";
@@ -110,19 +110,19 @@ export default function Register() {
 
             if (getBagResponse) {
                 setLoading(false);
-
                 dispatch({ type: "BAG_UPDATE", payload: getBagResponse.data });
-                Cookies.set("bag", JSON.stringify(getBagResponse.data));
-
                 dispatch({ type: "USER_LOGIN", payload: userInfo });
-                Cookies.set("user", JSON.stringify(userInfo));
             }
         }
     };
 
     let renderSpinner = null;
     if (loading) {
-        renderSpinner = <CircularProgress sx={{ position: "absolute", top: "50%", left: "50%" }} />;
+        renderSpinner = (
+            <Backdrop open={loading} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+                <CircularProgress />
+            </Backdrop>
+        );
     }
 
     return (
